@@ -37,10 +37,18 @@ class PiCarFunctions:
           return.self.lf.read_digital()
      
      
+     # ------------------------
+     # DISTANCE SENSOR
+     # ------------------------
+     def linefollower__get_data(self):
+          return.self.lf.read_digital()
+     
      
      # ------------------------
      # PICAR CONTROLS
      # ------------------------
+     
+     ### ENGINES
      def picarcontrols__forward(self):
           bw.left_wheel.forward()
           bw.right_wheel.forward()
@@ -58,4 +66,15 @@ class PiCarFunctions:
           
      def picarcontrols__set_rw_speed(self, speed):
           self.bw.right_wheel.speed = speed
+          
+          
+     ### STEERING
+     def picarcontrols__steer(self, angle):
+          self.fw.turn(angle)
+          
+     def picarcontrols__reset_steer(self):
+          self.fw.turn_straight()
+          
+          
+          
      
