@@ -63,16 +63,7 @@ class PiCarFunctions:
                status = self.ds.less_than(self.distancesensor_treshholds)
                if distance != -1:
                     print('distance', distance, 'cm')
-                    time.sleep(0.2)
-               else:
-                    print(False)
-               if status == 1:
-                    print("Less than %d" % self.distancesensor_treshholds)
-               elif status == 0:
-                    print("Over %d" % self.distancesensor_treshholds)
-               else:
-                    print("Read distance error.")
-               time.sleep(0.5)
+               time.sleep(0.1)
      
      
      # ------------------------
@@ -81,8 +72,8 @@ class PiCarFunctions:
      
      ### ENGINES
      def picarcontrols__forward(self):
-          bw.left_wheel.forward()
-          bw.right_wheel.forward()
+          self.bw.left_wheel.forward()
+          self.bw.right_wheel.forward()
           
      def picarcontrols__backward(self):
           self.bw.left_wheel.backward()
@@ -90,7 +81,7 @@ class PiCarFunctions:
           
      def picarcontrols__set_wheels_speed(self, speed):
           self.picarcontrols__set_rw_speed(speed)
-          self.picarcontrols__set_rw_speed(speed)
+          self.picarcontrols__set_lw_speed(speed)
           
      def picarcontrols__set_lw_speed(self, speed):
           self.bw.left_wheel.speed = speed
@@ -99,7 +90,33 @@ class PiCarFunctions:
           self.bw.right_wheel.speed = speed
           
      def picarengine__test(self):
-          self.bw.test()
+          DELAY = 0.01
+          try:
+               self.picarcontrols__forward()
+               for i in range(0, 100):
+                    self.picarcontrols__set_wheels_speed(i)
+                    print("Forward, speed =", i)
+                    time.sleep(DELAY)
+               for i in range(100, 0, -1):
+                    self.picarcontrols__set_wheels_speed(i)
+                    print("Forward, speed =", i)
+                    time.sleep(DELAY)
+
+               self.picarcontrols__backward()
+               for i in range(0, 100):
+                    self.picarcontrols__set_wheels_speed(i)
+                    print("Backward, speed =", i)
+                    time.sleep(DELAY)
+               for i in range(100, 0, -1):
+                    self.picarcontrols__set_wheels_speed(i)
+                    print("Backward, speed =", i)
+                    time.sleep(DELAY)
+          except KeyboardInterrupt:
+               print("KeyboardInterrupt, motor stop")
+               self.picarcontrols__set_wheels_speed(0)
+          finally:
+               print("Finished, motor stop")
+               self.picarcontrols__set_wheels_speed(0)
           
           
      ### STEERING
