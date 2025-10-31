@@ -18,8 +18,8 @@ class PiCarFunctions:
           # ------------------------
           self.fw = front_wheels.Front_Wheels(db='config')
           self.bw = back_wheels.Back_Wheels(db='config')
-          self.lf = Line_Follower.Line_Follower()
-          self.us = Ultrasonic_Sensor()
+          self.ld = Line_Follower.Line_Follower()
+          self.ds = Ultrasonic_Sensor()
 
 
           # ------------------------
@@ -33,15 +33,21 @@ class PiCarFunctions:
      # ------------------------
      # LINE FOLLOWER
      # ------------------------
-     def linefollower__get_data(self):
-          return.self.lf.read_digital()
+     def linedetector__get_data(self):
+          return.self.ld.read_digital()
+     
+     def linedetector__test(self):
+          self.ld.test()
      
      
      # ------------------------
      # DISTANCE SENSOR
      # ------------------------
-     def linefollower__get_data(self):
-          return.self.lf.read_digital()
+     def distancesensor__get_data(self):
+          return.self.ds.get_data()
+     
+     def distancesensor__test(self)
+          self.ds.test()
      
      
      # ------------------------
@@ -67,6 +73,9 @@ class PiCarFunctions:
      def picarcontrols__set_rw_speed(self, speed):
           self.bw.right_wheel.speed = speed
           
+     def picarcontrols__test(self)
+          self.bw.test()
+          
           
      ### STEERING
      def picarcontrols__steer(self, angle):
@@ -74,6 +83,9 @@ class PiCarFunctions:
           
      def picarcontrols__reset_steer(self):
           self.fw.turn_straight()
+     
+     def picarcontrols__test(self):
+          self.fw.test()
           
           
           
