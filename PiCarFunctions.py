@@ -36,7 +36,7 @@ class PiCarFunctions:
           # ------------------------
           # SETTINGS
           # ------------------------
-          self.distancesensor_treshholds = 10
+          self.distancesensor_treshold = 10
           
      # ------------------------
      # LINE FOLLOWER
@@ -57,10 +57,15 @@ class PiCarFunctions:
      def distancesensor__get_data(self):
           return self.ds.get_data()
      
+     def distancesensor__is_obstacle_detected(self):
+          if self.distancesensor__get_data() < self.distancesensor_treshold:
+               return True
+               
+     
      def distancesensor__test(self):
           while True:
                distance = self.ds.get_distance()
-               status = self.ds.less_than(self.distancesensor_treshholds)
+               status = self.ds.less_than(self.distancesensor_treshold)
                if distance != -1:
                     print('distance', distance, 'cm')
                time.sleep(0.1)
