@@ -1,0 +1,48 @@
+.pyc
+.log
+
+__pycache__
+__pycache__/
+
+# Backup files
+*.~
+
+# Byte-compiled / optimized / DLL files
+SunFounder_PiCar/__pycache__/
+SunFounder_PiCar/*.py[cod]
+
+# C extensions
+SunFounder_PiCar/*.so
+
+# Distribution / packaging
+SunFounder_PiCar/bin/
+SunFounder_PiCar/build/
+SunFounder_PiCar/develop-eggs/
+SunFounder_PiCar/dist/
+SunFounder_PiCar/eggs/
+SunFounder_PiCar/lib/
+SunFounder_PiCar/lib64/
+SunFounder_PiCar/parts/
+SunFounder_PiCar/sdist/
+SunFounder_PiCar/var/
+SunFounder_PiCar/*.egg-info/
+SunFounder_PiCar/.installed.cfg
+SunFounder_PiCar/*.egg
+SunFounder_PiCar/MANIFEST
+
+# Installer logs
+SunFounder_PiCar/pip-log.txt
+SunFounder_PiCar/pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+SunFounder_PiCar/.tox/
+SunFounder_PiCar/.coverage
+SunFounder_PiCar/.cache
+SunFounder_PiCar/nosetests.xml
+SunFounder_PiCar/coverage.xml
+
+# Translations
+SunFounder_PiCar/*.mo
+
+# Sphinx documentation
+SunFounder_PiCar/docs/_build/
