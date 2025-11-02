@@ -1,29 +1,177 @@
+import sys
+import os
 from PiCarFunctions import PiCarFunctions
-
+import time
 
 
 class Benchmark:
 
+     THRESHOLD_DISTANCE = 0.5 #(m)
 
      def __init__(self):
           self.pf = PiCarFunctions()
-
-     def run_all_benchmark(self):
-          pass
-     
-     def run_benchmark_constant_speed(self, speed):
-          self.pf.picarcontrols__reset_steer()
-          self.pf.picarcontrols__set_wheels_speed(speed)
+          self.THRESHOLD_DISTANCE
           
+     def sleep_before_run():
+          time.sleep(5)
+
+     def run_all_benchmark(self, write_to_file=False):
+          self.sleep_before_run()
+          """Execute tous les benchmarks avec des vitesses de 10 à 100."""
+          for speed in range(10, 101, 10):
+               self.run_benchmark_constant_speed(speed, 0.1, write_to_file)
+
+          for incr in range(1, 31, 5):
+               self.run_benchmark_speed(0, 100, 0.1, incr, write_to_file)
+          
+     
+     
+     def replace_piCar_at_distance_x(self, x):
+          
+          speed = 10
+          
+          while True:
+               distance = self.pf.distancesensor__get_data()
+               
+               if distance > (x-0.4) or distance < (x+0.4):
+                    self.pf.picarcontrols__stop()
+                    return
+               
+               if distance > x :
+                    self.pf.picarcontrols__forward()
+                    continue
+               
+               self.pf.picarcontrols__backward()
+               
+                    
+     
+     
+     def _initialize_benchmark(self):
+          """Initialise le benchmark : position, direction, données."""
+          initial_distance = self.pf.distancesensor__get_data()
+          if not (initial_distance > 0):
+               print("Error with the distance sensor")
+               return -1
+           
+          self.pf.picarcontrols__reset_steer()
+          
+          data_speed = []
+          data_distance = []
+          data_time = []
           
           self.pf.picarcontrols__forward()
+          start_time = time.time()
           
+          return initial_distance, data_speed, data_distance, data_time, start_time
      
      
+     
+     
+     def _collect_data_point(self, speed, start_time, data_speed, data_distance, data_time):
+          """Collecte un point de données et vérifie la condition d'arrêt."""
+          distance = self.pf.distancesensor__get_data()
+          
+          if distance < self.THRESHOLD_DISTANCE:
+               return False  # Arrêter le benchmark
+               
+          current_time = time.time() - start_time
+          data_speed.append(int(speed))
+          data_distance.append(float(distance))
+          data_time.append(float(current_time))
+          
+          return True  # Continuer le benchmark
+     
+     
+     
+     
+     def _finalize_benchmark(self, filename, data_speed, data_distance, data_time, 
+                           initial_distance, write_to_file):
+          """Finalise le benchmark : arrêt, sauvegarde, repositionnement."""
+          self.pf.picarcontrols__stop()
+          
+          if write_to_file:
+               self.write_benchmark_data_to_file(filename, data_speed, data_distance, data_time)
+               
+          self.replace_piCar_at_distance_x(initial_distance)
 
+
+
+
+
+     def run_benchmark_constant_speed(self, speed: int, interval=0.1, write_to_file=False):
+          """
+          Fait avancer la voiture à vitesse constante et prend une mesure toutes les `interval` secondes.
+          """
+          
+          self.sleep_before_run()
+          
+          initial_distance, data_speed, data_distance, data_time, start_time = self._initialize_benchmark()
+          self.pf.picarcontrols__set_wheels_speed(speed)
+
+          while True:
+               if not self._collect_data_point(speed, start_time, data_speed, data_distance, data_time):
+                    break
+               time.sleep(interval)
+
+          filename = f"benchmark__constant_speed_{int(speed)}"
+          self._finalize_benchmark(filename, data_speed, data_distance, data_time, 
+                                 initial_distance, write_to_file)
           
           
+          
 
+     def _update_speed_incrementally(self, current_speed, iteration_count, 
+                                   iter_delta_speed_increment, final_speed):
+          """Met à jour la vitesse de manière incrémentale selon les paramètres."""
+          if iteration_count % iter_delta_speed_increment == 0:
+               if current_speed < final_speed:
+                    current_speed += 1
+                    if current_speed > final_speed:
+                         current_speed = final_speed
+          return current_speed
+
+     def run_benchmark_speed(
+          self,
+          initial_speed=0,
+          final_speed=100,
+          time_delta_data=0.1,
+          iter_delta_speed_increment=5,
+          write_to_file=False
+     ):
+          
+          self.sleep_before_run()
+          initial_distance, data_speed, data_distance, data_time, start_time = self._initialize_benchmark()
+          
+          speed = initial_speed
+          iteration_count = 0
+
+          while True:
+               self.pf.picarcontrols__set_wheels_speed(speed)
+               
+               if not self._collect_data_point(speed, start_time, data_speed, data_distance, data_time):
+                    break
+
+               iteration_count += 1
+               speed = self._update_speed_incrementally(speed, iteration_count, 
+                                                      iter_delta_speed_increment, final_speed)
+               
+               time.sleep(time_delta_data)
+
+          filename = f"benchmark__increment_{iter_delta_speed_increment}"
+          self._finalize_benchmark(filename, data_speed, data_distance, data_time, 
+                                 initial_distance, write_to_file)
+
+          
+     
+          
+          
+     def write_benchmark_data_to_file(self, filename, data_speed, data_distance, data_time):
+          
+          with open(f"{filename}.txt", "w") as f:
+               f.write("time\tdistance\tspeed\n")  # entêtes
+               for t, d, s in zip(data_time, data_distance, data_speed):
+                    f.write(f"{t}\t{d}\t{s}\n")
+          
 
 
      def write_output_to_file(speed):
@@ -39,6 +187,19 @@ class Benchmark:
 
 
 if __name__ == "__main__":
-     bm = Benchmark()
-     
-     bm.run_all_benchmark()
+     bm = Benchmark()  # crée l’instance de la classe
+    
+     if len(sys.argv) < 2:
+          print("Usage: python3 benchmark.py <method_name> [args...]")
+          sys.exit(1)
+    
+     method_name = sys.argv[1]  # le nom de la méthode passée en argument
+     args = sys.argv[2:]        # arguments supplémentaires
+
+     # Vérifie si la méthode existe dans la classe
+     if hasattr(bm, method_name):
+          method = getattr(bm, method_name)
+          # Appelle la méthode avec les arguments de la ligne de commande
+          method(*args)
+     else:
+          print(f"Erreur : La méthode '{method_name}' n'existe pas dans BenchMark")
