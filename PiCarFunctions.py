@@ -85,6 +85,13 @@ class PiCarFunctions:
           self.bw.right_wheel.backward()
           
      def picarcontrols__set_wheels_speed(self, speed):
+          """
+          Parameter
+          ---------
+               speed : int
+                    Speed of engines. Must be an int from 0 to 100
+          """
+          
           self.picarcontrols__set_rw_speed(speed)
           self.picarcontrols__set_lw_speed(speed)
           
@@ -93,6 +100,9 @@ class PiCarFunctions:
           
      def picarcontrols__set_rw_speed(self, speed):
           self.bw.right_wheel.speed = speed
+          
+     def picarcontrols__stop(self):
+          self.picarcontrols__set_rw_speed(0)
           
      def picarengine__test(self):
           DELAY = 0.01
@@ -155,7 +165,7 @@ if __name__ == "__main__":
     pf = PiCarFunctions()  # crée l’instance de la classe
     
     if len(sys.argv) < 2:
-        print("Usage: python3 main.py <method_name> [args...]")
+        print("Usage: python3 PiCarFunctions.py <method_name> [args...]")
         sys.exit(1)
     
     method_name = sys.argv[1]  # le nom de la méthode passée en argument

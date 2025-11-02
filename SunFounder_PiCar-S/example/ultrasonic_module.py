@@ -64,7 +64,7 @@ class Ultrasonic_Sensor(object):
 			a = self.distance()
 			#print('    %s' % a)
 			sum += a
-		return int(sum/mount)
+		return float((sum/mount)/10)
 
 	def less_than(self, alarm_gate):
 		dis = self.get_distance()
@@ -90,7 +90,7 @@ def test():
 		distance = UA.distance()
 		status = UA.less_than(threshold)
 		if distance != -1:
-			print('distance', distance, 'cm')
+			print('distance', distance, 'm')
 			time.sleep(0.2)
 		else:
 			print(False)
