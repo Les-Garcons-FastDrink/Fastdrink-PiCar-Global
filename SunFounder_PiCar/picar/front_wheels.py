@@ -21,18 +21,19 @@ class Front_Wheels(object):
 	_DEBUG = False
 	_DEBUG_INFO = 'DEBUG "front_wheels.py":'
 
-	def __init__(self, debug=False, db="config", bus_number=1, channel=FRONT_WHEEL_CHANNEL):
+	def __init__(self, debug=False, db="/home/pi/Documents/SunFounder_PiCar/picar/config", bus_number=1, channel=FRONT_WHEEL_CHANNEL):
 		''' setup channels and basic stuff '''
 		self.db = filedb.fileDB(db=db)
 		self._channel = channel
 		self._straight_angle = 90
 		self.turning_max = 45
 		self._turning_offset = int(self.db.get('turning_offset', default_value=0))
+		self.cali_turning_offset = self._turning_offset
 
-		self.wheel = Servo.Servo(self._channel, bus_number=bus_number, offset=self.turning_offset)
+		self.wheel = Servo.Servo(self._channel, bus_number=bus_number, offset=self._turning_offset)
 		self.debug = debug
 		self._debug_('Front wheel PWM channel: %s' % self._channel)
-		self._debug_('Front wheel offset value: %s ' % self.turning_offset)
+		self._debug_('Front wheel offset value: %s ' % self._turning_offset)
 
 		self._angle = {"left":self._min_angle, "straight":self._straight_angle, "right":self._max_angle}
 		self._debug_('left angle: %s, straight angle: %s, right angle: %s' % (self._angle["left"], self._angle["straight"], self._angle["right"]))
@@ -119,14 +120,14 @@ class Front_Wheels(object):
 	def ready(self):
 		''' Get the front wheels to the ready position. '''
 		self._debug_('Turn to "Ready" position')
-		self.wheel.offset = self.turning_offset
+		self.wheel.offset = self._turning_offset
 		self.turn_straight()
 
 	def calibration(self):
 		''' Get the front wheels to the calibration position. '''
 		self._debug_('Turn to "Calibration" position')
 		self.turn_straight()
-		self.cali_turning_offset = self.turning_offset
+		self.cali_turning_offset = self._turning_offset
 
 	def cali_left(self):
 		''' Calibrate the wheels to left '''
@@ -142,8 +143,8 @@ class Front_Wheels(object):
 
 	def cali_ok(self):
 		''' Save the calibration value '''
-		self.turning_offset = self.cali_turning_offset
-		self.db.set('turning_offset', self.turning_offset)
+		self._turning_offset = self.cali_turning_offset
+		self.db.set('turning_offset', self._turning_offset)
 
 def test(chn=0):
 	import time

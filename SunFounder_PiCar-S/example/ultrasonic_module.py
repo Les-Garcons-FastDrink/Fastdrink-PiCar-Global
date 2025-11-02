@@ -64,7 +64,7 @@ class Ultrasonic_Sensor(object):
 			a = self.distance()
 			#print('    %s' % a)
 			sum += a
-		return float((sum/mount)/10)
+		return float((sum/mount)/100)
 
 
 	def less_than(self, alarm_gate):

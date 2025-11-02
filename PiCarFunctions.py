@@ -20,8 +20,8 @@ class PiCarFunctions:
           # ------------------------
           # COMPONENTS
           # ------------------------
-          self.fw = front_wheels.Front_Wheels(db='config')
-          self.bw = back_wheels.Back_Wheels(db='config')
+          self.fw = front_wheels.Front_Wheels(db='/home/pi/Documents/SunFounder_PiCar/picar/config')
+          self.bw = back_wheels.Back_Wheels(db='/home/pi/Documents/SunFounder_PiCar/picar/config')
           self.ld = Line_Follower.Line_Follower()
           self.ds = Ultrasonic_Sensor(17)
 
@@ -55,7 +55,7 @@ class PiCarFunctions:
      # DISTANCE SENSOR
      # ------------------------
      def distancesensor__get_data(self):
-          return self.ds.get_data()
+          return self.ds.get_distance()
      
      def distancesensor__is_obstacle_detected(self):
           if self.distancesensor__get_data() < self.distancesensor_treshold:
@@ -77,14 +77,15 @@ class PiCarFunctions:
      
      ### ENGINES
      def picarcontrols__forward(self):
+          self.bw.left_wheel.backward()
+          self.bw.right_wheel.backward()
+
+          
+     def picarcontrols__backward(self):
           self.bw.left_wheel.forward()
           self.bw.right_wheel.forward()
           
-     def picarcontrols__backward(self):
-          self.bw.left_wheel.backward()
-          self.bw.right_wheel.backward()
-          
-     def picarcontrols__set_wheels_speed(self, speed):
+     def picarcontrols__set_wheels_speed(self , speed : int):
           """
           Parameter
           ---------
@@ -96,13 +97,13 @@ class PiCarFunctions:
           self.picarcontrols__set_lw_speed(speed)
           
      def picarcontrols__set_lw_speed(self, speed):
-          self.bw.left_wheel.speed = speed
+          self.bw.left_wheel.speed = int(speed)
           
      def picarcontrols__set_rw_speed(self, speed):
-          self.bw.right_wheel.speed = speed
+          self.bw.right_wheel.speed = int(speed)
           
      def picarcontrols__stop(self):
-          self.picarcontrols__set_rw_speed(0)
+          self.picarcontrols__set_wheels_speed(0)
           
      def picarengine__test(self):
           DELAY = 0.01

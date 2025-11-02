@@ -10,30 +10,41 @@ class Benchmark:
 
      def __init__(self):
           self.pf = PiCarFunctions()
+          self.pf.fw.calibration()
           self.THRESHOLD_DISTANCE
           
-     def sleep_before_run():
-          time.sleep(5)
+     def sleep_before_run(self):
+          
+          sleep_delta : int = 5
+          for i in range(sleep_delta):
+               print(sleep_delta-i)
+               time.sleep(1)
 
      def run_all_benchmark(self, write_to_file=False):
-          self.sleep_before_run()
           """Execute tous les benchmarks avec des vitesses de 10 à 100."""
-          for speed in range(10, 101, 10):
+          
+          print("Running all benchmark \n")
+          
+          self.sleep_before_run()
+          
+          for speed in range(20, 100, 10):
                self.run_benchmark_constant_speed(speed, 0.1, write_to_file)
 
-          for incr in range(1, 31, 5):
-               self.run_benchmark_speed(0, 100, 0.1, incr, write_to_file)
+          #for incr in range(1, 31, 5):
+          #     self.run_benchmark_speed(0, 100, 0.1, incr, write_to_file)
           
      
      
      def replace_piCar_at_distance_x(self, x):
           
-          speed = 10
+          print(f"Replacing PiCar at distance {x}")
+          speed = 20
           
+          self.pf.picarcontrols__set_wheels_speed(speed)
           while True:
                distance = self.pf.distancesensor__get_data()
                
-               if distance > (x-0.4) or distance < (x+0.4):
+               if distance > (x-0.05) and distance < (x+0.05):
                     self.pf.picarcontrols__stop()
                     return
                
@@ -42,6 +53,8 @@ class Benchmark:
                     continue
                
                self.pf.picarcontrols__backward()
+          
+          print("Replacement done")
                
                     
      
@@ -78,6 +91,7 @@ class Benchmark:
           data_speed.append(int(speed))
           data_distance.append(float(distance))
           data_time.append(float(current_time))
+          print(float(distance))
           
           return True  # Continuer le benchmark
      
@@ -102,6 +116,8 @@ class Benchmark:
           """
           Fait avancer la voiture à vitesse constante et prend une mesure toutes les `interval` secondes.
           """
+          
+          print(f"Running constant speed benchmark at speed {speed}\n")
           
           self.sleep_before_run()
           
@@ -134,10 +150,12 @@ class Benchmark:
           self,
           initial_speed=0,
           final_speed=100,
-          time_delta_data=0.1,
+          time_delta_data=0.05,
           iter_delta_speed_increment=5,
           write_to_file=False
      ):
+          
+          print(f"Running acceleration benchmark with speed incrementation of {iter_delta_speed_increment} each {time_delta_data} sec\n")
           
           self.sleep_before_run()
           initial_distance, data_speed, data_distance, data_time, start_time = self._initialize_benchmark()
@@ -187,19 +205,25 @@ class Benchmark:
 
 
 if __name__ == "__main__":
-     bm = Benchmark()  # crée l’instance de la classe
-    
-     if len(sys.argv) < 2:
-          print("Usage: python3 benchmark.py <method_name> [args...]")
-          sys.exit(1)
-    
-     method_name = sys.argv[1]  # le nom de la méthode passée en argument
-     args = sys.argv[2:]        # arguments supplémentaires
+     try :
+          
+          bm = Benchmark()  # crée l’instance de la classe
+     
+          if len(sys.argv) < 2:
+               print("Usage: python3 benchmark.py <method_name> [args...]")
+               sys.exit(1)
+     
+          method_name = sys.argv[1]  # le nom de la méthode passée en argument
+          args = sys.argv[2:]        # arguments supplémentaires
 
-     # Vérifie si la méthode existe dans la classe
-     if hasattr(bm, method_name):
-          method = getattr(bm, method_name)
-          # Appelle la méthode avec les arguments de la ligne de commande
-          method(*args)
-     else:
-          print(f"Erreur : La méthode '{method_name}' n'existe pas dans BenchMark")
+          # Vérifie si la méthode existe dans la classe
+          if hasattr(bm, method_name):
+               method = getattr(bm, method_name)
+               # Appelle la méthode avec les arguments de la ligne de commande
+               method(*args)
+          else:
+               print(f"Erreur : La méthode '{method_name}' n'existe pas dans BenchMark")
+     
+     except KeyboardInterrupt:
+          print("KeyboardInterrupt, motor stop")
+          bm.pf.picarcontrols__stop()
