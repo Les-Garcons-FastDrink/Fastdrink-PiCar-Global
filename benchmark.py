@@ -11,8 +11,12 @@ class Benchmark:
      def __init__(self):
           self.pf = PiCarFunctions()
           self.THRESHOLD_DISTANCE
+          
+     def sleep_before_run():
+          time.sleep(5)
 
      def run_all_benchmark(self, write_to_file=False):
+          self.sleep_before_run()
           """Execute tous les benchmarks avec des vitesses de 10 à 100."""
           for speed in range(10, 101, 10):
                self.run_benchmark_constant_speed(speed, 0.1, write_to_file)
@@ -98,6 +102,9 @@ class Benchmark:
           """
           Fait avancer la voiture à vitesse constante et prend une mesure toutes les `interval` secondes.
           """
+          
+          self.sleep_before_run()
+          
           initial_distance, data_speed, data_distance, data_time, start_time = self._initialize_benchmark()
           self.pf.picarcontrols__set_wheels_speed(speed)
 
@@ -131,6 +138,8 @@ class Benchmark:
           iter_delta_speed_increment=5,
           write_to_file=False
      ):
+          
+          self.sleep_before_run()
           initial_distance, data_speed, data_distance, data_time, start_time = self._initialize_benchmark()
           
           speed = initial_speed
@@ -148,7 +157,7 @@ class Benchmark:
                
                time.sleep(time_delta_data)
 
-          filename = f"benchmark__speed_{int(initial_speed)}_to_{int(final_speed)}"
+          filename = f"benchmark__increment_{iter_delta_speed_increment}"
           self._finalize_benchmark(filename, data_speed, data_distance, data_time, 
                                  initial_distance, write_to_file)
 
