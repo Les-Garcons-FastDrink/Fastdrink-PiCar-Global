@@ -7,6 +7,7 @@ Ce projet utilise un Raspberry Pi avec un kit PiCar pour créer une voiture auto
 - [⚡ Alimentation](#-alimentation)
 - [🌐 Connexion SSH](#-connexion-ssh)
 - [🔧 Configuration VSCode Remote](#-configuration-vscode-remote)
+- [⚙️ Calibration du PiCar](#️-calibration-du-picar)
 - [🐍 Utilisation de PiCarFunctions.py](#-utilisation-de-picarfunctionspy)
 - [💻 Commandes utiles](#-commandes-utiles)
 - [⚠️ Problèmes courants](#️-problèmes-courants)
@@ -160,6 +161,83 @@ ssh pi@<adresse_ip>
 ```bash
 ssh pi@raspberrypi.local
 ```
+---
+
+## ⚙️ Calibration du PiCar
+
+### 📍 Prérequis
+
+> ⚠️ **Important** : Ces commandes doivent être exécutées depuis la **racine du repository** sur le Raspberry Pi.
+
+### 🔧 Procédure de calibration
+
+La calibration du steering des roues avant est essentielle pour garantir un fonctionnement optimal du PiCar. Suivez ces étapes dans l'ordre :
+
+#### **1. Démarrer Python interactif**
+
+Depuis la racine du repository, lancez Python :
+
+```bash
+python3
+```
+
+#### **2. Importer les modules nécessaires**
+
+```python
+from SunFounder_PiCar.picar.SunFounder_PCA9685 import Servo
+from SunFounder_PiCar.picar import filedb
+from SunFounder_PiCar.picar.front_wheels import Front_Wheels
+```
+
+#### **3. Initialiser les roues avant**
+
+```python
+fw = Front_Wheels(channel=0)
+```
+
+> ℹ️ **Output attendu** : Vous devriez voir des messages de debug similaires à :
+> ```
+> DEBUG "front_wheels.py": Set debug off
+> DEBUG "front_wheels.py": Set wheel debug off  
+> DEBUG "Servo.py": Set debug off
+> ```
+
+#### **4. Effectuer la calibration**
+
+**Position de calibration de base :**
+```python
+fw.calibration()
+```
+
+**Calibration vers la droite :**
+```python
+fw.cali_right()
+# ou
+fw.cali_left()
+```
+> ℹ️ Ceci incrémente le offset de base du steering
+
+**Sauvegarder le offset**
+```python
+fw.cali_ok()
+```
+> ℹ️ Ceci sauvegarde le offset dans la bd au path ``/home/pi/Documents/SunFounder_PiCar/picar/config``
+
+
+### 💡 **Conseils de calibration**
+
+- 🎯 Vérifiez que les roues sont alignées après `cali_ok()`
+- 🔄 Utilisez `cali_right()` pour ajuster la direction vers la droite si nécessaire
+- 📏 La calibration peut nécessiter plusieurs essais pour obtenir un alignement parfait
+- 🛑 Tapez `exit()` ou `Ctrl+D` pour quitter Python une fois terminé
+
+### ⚠️ **Troubleshooting**
+
+Si vous rencontrez des erreurs :
+- Vérifiez que vous êtes bien dans la racine du repository
+- Assurez-vous que l'alimentation est correctement branchée
+- Redémarrez le Pi si les modules ne se chargent pas correctement
+
 ---
 
 ## 🐍 Utilisation de PiCarFunctions.py
