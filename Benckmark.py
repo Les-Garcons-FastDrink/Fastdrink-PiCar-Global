@@ -13,51 +13,8 @@ class Benchmark:
           self.pf.fw.calibration()
           self.THRESHOLD_DISTANCE
           
-     def sleep_before_run(self):
-          
-          sleep_delta : int = 5
-          for i in range(sleep_delta):
-               print(sleep_delta-i)
-               time.sleep(1)
 
-     def run_all_benchmark(self, write_to_file=False):
-          """Execute tous les benchmarks avec des vitesses de 10 à 100."""
-          
-          print("Running all benchmark \n")
-          
-          self.sleep_before_run()
-          
-          for speed in range(20, 100, 10):
-               self.run_benchmark_constant_speed(speed, 0.1, write_to_file)
-
-          #for incr in range(1, 31, 5):
-          #     self.run_benchmark_speed(0, 100, 0.1, incr, write_to_file)
-          
-     
-     
-     def replace_piCar_at_distance_x(self, x):
-          
-          print(f"Replacing PiCar at distance {x}")
-          speed = 20
-          
-          self.pf.picarcontrols__set_wheels_speed(speed)
-          while True:
-               distance = self.pf.distancesensor__get_data()
                
-               if distance > (x-0.05) and distance < (x+0.05):
-                    self.pf.picarcontrols__stop()
-                    return
-               
-               if distance > x :
-                    self.pf.picarcontrols__forward()
-                    continue
-               
-               self.pf.picarcontrols__backward()
-          
-          print("Replacement done")
-               
-                    
-     
      
      def _initialize_benchmark(self):
           """Initialise le benchmark : position, direction, données."""
@@ -112,6 +69,40 @@ class Benchmark:
 
 
 
+          
+          
+          
+
+     def _update_speed_incrementally(self, current_speed, iteration_count, 
+                                   iter_delta_speed_increment, final_speed):
+          """Met à jour la vitesse de manière incrémentale selon les paramètres."""
+          if iteration_count % iter_delta_speed_increment == 0:
+               if current_speed < final_speed:
+                    current_speed += 1
+                    if current_speed > final_speed:
+                         current_speed = final_speed
+          return current_speed
+     
+     
+     
+     
+     
+     def run_all_benchmark(self, write_to_file=False):
+          """Execute tous les benchmarks avec des vitesses de 10 à 100."""
+          
+          print("Running all benchmark \n")
+          
+          self.sleep_before_run()
+          
+          for speed in range(20, 100, 10):
+               self.run_benchmark_constant_speed(speed, 0.1, write_to_file)
+
+          for incr in range(1, 31, 5):
+               self.run_benchmark_speed(0, 100, 0.1, incr, write_to_file)
+          
+          
+          
+     
      def run_benchmark_constant_speed(self, speed: int, interval=0.1, write_to_file=False):
           """
           Fait avancer la voiture à vitesse constante et prend une mesure toutes les `interval` secondes.
@@ -132,30 +123,19 @@ class Benchmark:
           filename = f"benchmark__constant_speed_{int(speed)}"
           self._finalize_benchmark(filename, data_speed, data_distance, data_time, 
                                  initial_distance, write_to_file)
-          
-          
-          
 
-     def _update_speed_incrementally(self, current_speed, iteration_count, 
-                                   iter_delta_speed_increment, final_speed):
-          """Met à jour la vitesse de manière incrémentale selon les paramètres."""
-          if iteration_count % iter_delta_speed_increment == 0:
-               if current_speed < final_speed:
-                    current_speed += 1
-                    if current_speed > final_speed:
-                         current_speed = final_speed
-          return current_speed
 
      def run_benchmark_speed(
           self,
           initial_speed=0,
           final_speed=100,
           time_delta_data=0.05,
+          speed_increment=5,
           iter_delta_speed_increment=5,
           write_to_file=False
      ):
           
-          print(f"Running acceleration benchmark with speed incrementation of {iter_delta_speed_increment} each {time_delta_data} sec\n")
+          print(f"Running acceleration benchmark with speed incrementation of {speed_increment} each {time_delta_data} sec\n")
           
           self.sleep_before_run()
           initial_distance, data_speed, data_distance, data_time, start_time = self._initialize_benchmark()
@@ -170,22 +150,54 @@ class Benchmark:
                     break
 
                iteration_count += 1
-               speed = self._update_speed_incrementally(speed, iteration_count, 
-                                                      iter_delta_speed_increment, final_speed)
+               
+               if (iteration_count % iter_delta_speed_increment) == 0:
+                    speed = self._update_speed_incrementally(speed, iteration_count, 
+                                                       speed_increment, final_speed)
                
                time.sleep(time_delta_data)
 
-          filename = f"benchmark__increment_{iter_delta_speed_increment}"
+          filename = f"benchmark__increment_{speed_increment}"
           self._finalize_benchmark(filename, data_speed, data_distance, data_time, 
                                  initial_distance, write_to_file)
+          
+     
+     def run_benchmark_distance_sensor(          
+          self,
+          time_delta_data=0.05,
+          nb_of_datas=500,
+          write_to_file=False
+     ):
+          print(f"Running distance sensor benchmark, while stationnary and with delta time {time_delta_data} sec\n")
+          
+          self.sleep_before_run()
+          initial_distance, data_speed, data_distance, data_time, start_time = self._initialize_benchmark()
+
+          while iteration_count < nb_of_datas:
+               
+               if not self._collect_data_point(0, start_time, data_speed, data_distance, data_time):
+                    break
+
+               iteration_count += 1
+               
+               time.sleep(time_delta_data)
+
+          filename = f"benchmark__distance_sensor_{time_delta_data}"
+          self._finalize_benchmark(filename, data_speed, data_distance, data_time, 
+                                 initial_distance, write_to_file)
+          
 
           
      
+     #--------------------
+     # BENCHMARK UTILS
+     #--------------------
           
           
      def write_benchmark_data_to_file(self, filename, data_speed, data_distance, data_time):
           
-          with open(f"{filename}.txt", "w") as f:
+          folder = "/home/pi/Documents/SunFounder_PiCar/benchmarks"
+          with open(f"{folder}/{filename}.txt", "w") as f:
                f.write("time\tdistance\tspeed\n")  # entêtes
                for t, d, s in zip(data_time, data_distance, data_speed):
                     f.write(f"{t}\t{d}\t{s}\n")
@@ -197,6 +209,38 @@ class Benchmark:
           
           with open(filename, 'w'):
                pass
+          
+     
+     
+     def sleep_before_run(self):
+          
+          sleep_delta : int = 5
+          for i in range(sleep_delta):
+               print(sleep_delta-i)
+               time.sleep(1)
+
+
+     
+     def replace_piCar_at_distance_x(self, x):
+          
+          print(f"Replacing PiCar at distance {x}")
+          speed = 20
+          
+          self.pf.picarcontrols__set_wheels_speed(speed)
+          while True:
+               distance = self.pf.distancesensor__get_data()
+               
+               if distance > (x-0.05) and distance < (x+0.05):
+                    self.pf.picarcontrols__stop()
+                    return
+               
+               if distance > x :
+                    self.pf.picarcontrols__forward()
+                    continue
+               
+               self.pf.picarcontrols__backward()
+          
+          print("Replacement done")
                
 
 
