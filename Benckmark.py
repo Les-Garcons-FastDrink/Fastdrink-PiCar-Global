@@ -6,7 +6,7 @@ import time
 
 class Benchmark:
 
-     THRESHOLD_DISTANCE = 0.5 #(m)
+     THRESHOLD_DISTANCE = 0.3 #(m)
 
      def __init__(self):
           self.pf = PiCarFunctions()
@@ -99,6 +99,15 @@ class Benchmark:
 
           for incr in range(1, 31, 5):
                self.run_benchmark_speed(0, 100, 0.1, incr, write_to_file)
+               
+          for i in range(0.3, 0.15, 0.1):
+               self.run_benchmark_distance_sensor(0.05, distance=i, write_to_file=write_to_file)
+               
+          for dt in range(0.01, 0.51, 0.05):
+               self.replace_piCar_at_distance_x(i)
+               self.run_benchmark_distance_sensor(dt, write_to_file)
+               
+               
           
           
           
@@ -164,6 +173,7 @@ class Benchmark:
      
      def run_benchmark_distance_sensor(          
           self,
+          distance=1,
           time_delta_data=0.05,
           nb_of_datas=500,
           write_to_file=False
@@ -182,7 +192,7 @@ class Benchmark:
                
                time.sleep(time_delta_data)
 
-          filename = f"benchmark__distance_sensor_{time_delta_data}"
+          filename = f"benchmark__distance_sensor_{distance}m_tdelta_{time_delta_data}"
           self._finalize_benchmark(filename, data_speed, data_distance, data_time, 
                                  initial_distance, write_to_file)
           
@@ -232,6 +242,7 @@ class Benchmark:
                
                if distance > (x-0.05) and distance < (x+0.05):
                     self.pf.picarcontrols__stop()
+                    print("Replacement done")
                     return
                
                if distance > x :
@@ -240,7 +251,7 @@ class Benchmark:
                
                self.pf.picarcontrols__backward()
           
-          print("Replacement done")
+          
                
 
 
