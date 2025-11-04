@@ -124,7 +124,7 @@ class Benchmark:
                     break
                time.sleep(interval)
 
-          filename = f"benchmark__constant_speed_{int(speed)}"
+          filename = f"benchmark__speed_constant_{int(speed)}"
           self._finalize_benchmark(filename, data_speed, data_distance, data_time, 
                                  initial_distance, write_to_file)
 
@@ -160,7 +160,7 @@ class Benchmark:
                
                time.sleep(time_delta_data)
 
-          filename = f"benchmark__increment_{speed_increment}"
+          filename = f"benchmark__speed_acceleration_increment_{speed_increment}"
           self._finalize_benchmark(filename, data_speed, data_distance, data_time, 
                                  initial_distance, write_to_file)
           
