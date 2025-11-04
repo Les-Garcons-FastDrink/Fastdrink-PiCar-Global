@@ -73,15 +73,6 @@ class Benchmark:
           
           
 
-     def _update_speed_incrementally(self, current_speed, iteration_count, 
-                                   iter_delta_speed_increment, final_speed):
-          """Met à jour la vitesse de manière incrémentale selon les paramètres."""
-          if iteration_count % iter_delta_speed_increment == 0:
-               if current_speed < final_speed:
-                    current_speed += 1
-                    if current_speed > final_speed:
-                         current_speed = final_speed
-          return current_speed
      
      
      
@@ -95,17 +86,21 @@ class Benchmark:
           self.sleep_before_run()
           
           for speed in range(20, 100, 10):
-               self.run_benchmark_constant_speed(speed, 0.1, write_to_file)
+               #self.run_benchmark_constant_speed(speed, 0.1, write_to_file)
 
           for incr in range(1, 31, 5):
-               self.run_benchmark_speed(0, 100, 0.1, incr, write_to_file)
+               #self.run_benchmark_speed(0, 100, 0.1, incr, 5, write_to_file)
                
-          for i in range(0.3, 0.15, 0.1):
-               self.run_benchmark_distance_sensor(0.05, distance=i, write_to_file=write_to_file)
-               
-          for dt in range(0.01, 0.51, 0.05):
+          # variance de la distance
+          for n in range(0, 2):  # 0, 1, 2, 3
+               i = 1.5 + n * 0.2
+               self.run_benchmark_distance_sensor(distance=i, time_delta_data=0.05,  write_to_file=write_to_file)
+
+          # variance du delta echantillonage
+          for n in range(0, 10):  # 0.01 à 0.5 par pas de 0.05
+               dt = 0.01 + n * 0.05
                self.replace_piCar_at_distance_x(i)
-               self.run_benchmark_distance_sensor(dt, write_to_file)
+               self.run_benchmark_distance_sensor(distance=0.5,time_delta_data=dt, write_to_file=write_to_file)
                
                
           
@@ -160,9 +155,8 @@ class Benchmark:
 
                iteration_count += 1
                
-               if (iteration_count % iter_delta_speed_increment) == 0:
-                    speed = self._update_speed_incrementally(speed, iteration_count, 
-                                                       speed_increment, final_speed)
+               if (iteration_count % iter_delta_speed_increment) == 0 and speed < final_speed:
+                    speed += iter_delta_speed_increment
                
                time.sleep(time_delta_data)
 
@@ -175,14 +169,19 @@ class Benchmark:
           self,
           distance=1,
           time_delta_data=0.05,
-          nb_of_datas=500,
+          nb_of_datas=200,
           write_to_file=False
      ):
-          print(f"Running distance sensor benchmark, while stationnary and with delta time {time_delta_data} sec\n")
+          print(f"Running distance sensor benchmark, while stationnary at {distance}m and with delta time {time_delta_data} sec\n")
           
           self.sleep_before_run()
           initial_distance, data_speed, data_distance, data_time, start_time = self._initialize_benchmark()
+          
+          self.replace_piCar_at_distance_x(distance)
+          
+          iteration_count=0
 
+          THRESHOLD_DISTANCE = 0
           while iteration_count < nb_of_datas:
                
                if not self._collect_data_point(0, start_time, data_speed, data_distance, data_time):
@@ -206,19 +205,14 @@ class Benchmark:
           
      def write_benchmark_data_to_file(self, filename, data_speed, data_distance, data_time):
           
-          folder = "/home/pi/Documents/SunFounder_PiCar/benchmarks"
-          with open(f"{folder}/{filename}.txt", "w") as f:
+          folder = "/home/pi/Documents/benchmarks"
+          with open(f"{folder}/{filename}.txt", "w+") as f:
                f.write("time\tdistance\tspeed\n")  # entêtes
                for t, d, s in zip(data_time, data_distance, data_speed):
                     f.write(f"{t}\t{d}\t{s}\n")
           
 
 
-     def write_output_to_file(speed):
-          filename = f"bechmark_speed_{speed}.txt"
-          
-          with open(filename, 'w'):
-               pass
           
      
      
@@ -234,7 +228,7 @@ class Benchmark:
      def replace_piCar_at_distance_x(self, x):
           
           print(f"Replacing PiCar at distance {x}")
-          speed = 20
+          speed = 40
           
           self.pf.picarcontrols__set_wheels_speed(speed)
           while True:

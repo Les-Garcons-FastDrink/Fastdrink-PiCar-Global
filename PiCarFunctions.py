@@ -102,14 +102,6 @@ class PiCarFunctions:
      def picarcontrols__set_rw_speed(self, speed):
           self.bw.right_wheel.speed = int(speed)
           
-     def picarcontrols__steer_cali_left(self):
-          self.fw.cali_left()
-          self.fw.cali_ok()
-     
-     def picarcontrols__steer_cali_right(self):
-          self.fw.cali_right()
-          self.fw.cali_ok()   
-       
      def picarcontrols__stop(self):
           self.picarcontrols__set_wheels_speed(0)
           
@@ -150,6 +142,16 @@ class PiCarFunctions:
      def picarcontrols__reset_steer(self):
           self.fw.turn_straight()
      
+     def picarcontrols__steer_cali_left(self):
+          self.fw.calibration()
+          self.fw.cali_left()
+          self.fw.cali_ok()
+     
+     def picarcontrols__steer_cali_right(self):
+          self.fw.calibration()
+          self.fw.cali_right()
+          self.fw.cali_ok()   
+       
      def picarsteering__test(self):
           try:
                while True:
