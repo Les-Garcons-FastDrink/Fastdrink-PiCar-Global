@@ -7,9 +7,9 @@ class PiCarRoutes:
 
      def __init__(self):
           self.picar = Flask(__name__)
+          self.pf = PiCarFunctions()
           self._setup_routes()
           
-          #self.pf = PiCarFunctions()
 
 
      def _setup_routes(self):
@@ -18,7 +18,7 @@ class PiCarRoutes:
           def routes__ping():
                return {"responseStatus" : 200}
           
-          @self.picar.route('/picar/get_all_data', methods=['GET']):
+          @self.picar.route('/picar/get_all_data', methods=['GET'])
           def routes__get_all_data():
                try :
                     
@@ -28,25 +28,19 @@ class PiCarRoutes:
                     line_detector_data = self.pf.linedetector__get_data()
                     
                     return {
-                         "response" :
-                         {
-                              "status" : 200,
-                              "datas" : 
-                                   {
-                                        "engines" : 
-                                             {
-                                                  "engine_power_left" : engine_power_left,
-                                                  "engine_power_right" : engine_power_right
-                                             }
-                                        
-                                        "steering" : steer_data,
-                                        "distance_sensor" : distance_sensor_data
-                                        "line_detector" : line_detector_data
-                                        
-                                   }
-                              
-                              
+                         "response": {
+                              "status": 200,
+                              "datas": {
+                                   "engines": {
+                                        "engine_power_left": engine_power_left,
+                                        "engine_power_right": engine_power_right
+                                   },
+                                   "steering": steer_data,
+                                   "distance_sensor": distance_sensor_data,
+                                   "line_detector": line_detector_data
+                              }
                          }
+                    }
                except Exception as e:
                     print(f"[ERROR] /picar/get_all_data: {e}")
                     return {
@@ -58,7 +52,7 @@ class PiCarRoutes:
                     }
 
                     
-               }               
+               
                
           
           # ------------------------
