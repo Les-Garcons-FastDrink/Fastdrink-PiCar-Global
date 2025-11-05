@@ -22,7 +22,7 @@ class Front_Wheels(object):
 	_DEBUG_INFO = 'DEBUG "front_wheels.py":'
 
 	def __init__(self, debug=False, db="/home/pi/Documents/SunFounder_PiCar/picar/config", bus_number=1, channel=FRONT_WHEEL_CHANNEL):
-		''' setup channels and basic stuff '''
+		print("[Front_Wheels] __init__ loaded")		
 		self.db = filedb.fileDB(db=db)
 		self._channel = channel
 		self._straight_angle = 90
@@ -35,9 +35,15 @@ class Front_Wheels(object):
 		self._debug_('Front wheel PWM channel: %s' % self._channel)
 		self._debug_('Front wheel offset value: %s ' % self._turning_offset)
 
-		self._angle = {"left":self._min_angle, "straight":self._straight_angle, "right":self._max_angle}
+		# --- Initialisation correcte des angles ---
+		self._min_angle = self._straight_angle - self.turning_max
+		self._max_angle = self._straight_angle + self.turning_max
+		self._angle = {"left": self._min_angle, "straight": self._straight_angle, "right": self._max_angle}
 		self._debug_('left angle: %s, straight angle: %s, right angle: %s' % (self._angle["left"], self._angle["straight"], self._angle["right"]))
+
 		self.actual_angle = 0
+  
+  
 	def _debug_(self,message):
 		if self._DEBUG:
 			print(self._DEBUG_INFO,message)
@@ -46,21 +52,21 @@ class Front_Wheels(object):
 		''' Turn the front wheels left '''
 		self._debug_("Turn left")
 		self.wheel.write(self._angle["left"])
-  		self.actual_angle = self._angle["left"]
+		self.actual_angle = self._angle["left"]
   
 
 	def turn_straight(self):
 		''' Turn the front wheels back straight '''
 		self._debug_("Turn straight")
 		self.wheel.write(self._angle["straight"])
-  		self.actual_angle = self._angle["straight"]
+		self.actual_angle = self._angle["straight"]
 
 
 	def turn_right(self):
 		''' Turn the front wheels right '''
 		self._debug_("Turn right")
 		self.wheel.write(self._angle["right"])
-  		self.actual_angle = self._angle["right"]
+		self.actual_angle = self._angle["right"]
 
 	def turn(self, angle):
 		''' Turn the front wheels to the giving angle '''

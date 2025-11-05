@@ -1,14 +1,16 @@
 import sys
 import os
 
+sys.path.insert(0, "/home/pi/Documents/SunFounder_PiCar/picar_local")
 sys.path.append(os.path.abspath("./SunFounder_PiCar-S/example"))
 sys.path.append(os.path.abspath("./SunFounder_PiCar"))
 
 from SunFounder_Line_Follower import Line_Follower
 from ultrasonic_module import Ultrasonic_Sensor
-from picar import front_wheels, back_wheels
+from picar_local import front_wheels, back_wheels
+print(front_wheels.__file__)
 import time
-import picar
+import picar_local
 
 
 
@@ -29,7 +31,7 @@ class PiCarFunctions:
           # ------------------------
           # SETUP
           # ------------------------
-          picar.setup()
+          picar_local.setup()
           self.fw.ready()
           self.bw.ready()
           

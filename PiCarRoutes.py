@@ -1,5 +1,6 @@
 
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from PiCarFunctions import PiCarFunctions
 
 
@@ -7,6 +8,7 @@ class PiCarRoutes:
 
      def __init__(self):
           self.picar = Flask(__name__)
+          CORS(self.picar)
           self.pf = PiCarFunctions()
           self._setup_routes()
           
@@ -145,9 +147,10 @@ class PiCarRoutes:
           # Démarre le serveur Flask
           self.picar.run(
                debug=True,
+               use_reloader=False,
                host="0.0.0.0",
                port=5000,
-               ssl_context='adhoc'
+               ssl_context=None  # désactiver HTTPS
           )
           
 
