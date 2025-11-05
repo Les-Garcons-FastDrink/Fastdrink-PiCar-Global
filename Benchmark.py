@@ -86,10 +86,10 @@ class Benchmark:
           self.sleep_before_run()
           
           for speed in range(20, 100, 10):
-               #self.run_benchmark_constant_speed(speed, 0.1, write_to_file)
+               self.run_benchmark_constant_speed(speed, 0.1, write_to_file)
 
           for incr in range(1, 31, 5):
-               #self.run_benchmark_speed(0, 100, 0.1, incr, 5, write_to_file)
+               self.run_benchmark_speed(0, 100, 0.1, incr, 5, write_to_file)
                
           # variance de la distance
           for n in range(0, 2):  # 0, 1, 2, 3
