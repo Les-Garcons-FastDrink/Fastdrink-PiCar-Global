@@ -1,6 +1,7 @@
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import threading
 from PiCarFunctions import PiCarFunctions
 
 
@@ -66,7 +67,10 @@ class PiCarRoutes:
 
           @self.picar.route('/picar/linedetector/test', methods=['POST'])
           def routes__linedetector__test():
-               self.pf.linedetector__test()
+               # linedetector__test is blocking (infinite loop). Run it in a background thread
+               t = threading.Thread(target=self.pf.linedetector__test, daemon=True)
+               t.start()
+               return jsonify({"status": "started"}), 202
 
 
           # ------------------------
@@ -82,7 +86,9 @@ class PiCarRoutes:
 
           @self.picar.route('/picar/distancesensor/test', methods=['POST'])
           def routes__distancesensor__test():
-               self.pf.distancesensor__test()
+               t = threading.Thread(target=self.pf.distancesensor__test, daemon=True)
+               t.start()
+               return jsonify({"status": "started"}), 202
 
 
           # ------------------------
@@ -93,52 +99,69 @@ class PiCarRoutes:
           @self.picar.route('/picar/engines/forward', methods=['POST'])
           def routes__picarcontrols__forward():
                self.pf.picarcontrols__forward()
+               return jsonify({"status": "ok"}), 200
 
           @self.picar.route('/picar/engines/backward', methods=['POST'])
           def routes__picarcontrols__backward():
                self.pf.picarcontrols__backward()
+               return jsonify({"status": "ok"}), 200
           
           @self.picar.route('/picar/engines/set_wheels_speed/<speed>', methods=['POST'])  
           def routes__picarcontrols__set_wheels_speed(speed : int):
-               self.pf.picarcontrols__set_wheels_speed(speed)
+               self.pf.picarcontrols__set_wheels_speed(int(speed))
+               return jsonify({"status": "ok", "speed": int(speed)}), 200
 
           @self.picar.route('/picar/engines/set_lw_speed/<speed>', methods=['POST'])
           def routes__picarcontrols__set_lw_speed(speed):
-               self.pf.picarcontrols__set_lw_speed(speed)
+               self.pf.picarcontrols__set_lw_speed(int(speed))
+               return jsonify({"status": "ok", "lw_speed": int(speed)}), 200
           
           @self.picar.route('/picar/engines/set_rw_speed/<speed>', methods=['POST'])   
           def routes__picarcontrols__set_rw_speed(speed):
-               self.pf.picarcontrols__set_rw_speed(speed)
+               self.pf.picarcontrols__set_rw_speed(int(speed))
+               return jsonify({"status": "ok", "rw_speed": int(speed)}), 200
           
           @self.picar.route('/picar/engines/stop', methods=['POST'])
           def routes__picarcontrols__stop():
                self.pf.picarcontrols__stop()
+               return jsonify({"status": "ok"}), 200
           
           @self.picar.route('/picar/engines/test', methods=['POST'])
           def routes__picarengine__test():
-               self.pf.picarengine__test()
+               t = threading.Thread(target=self.pf.picarengine__test, daemon=True)
+               t.start()
+               return jsonify({"status": "started"}), 202
 
           ### STEERING
           @self.picar.route('/picar/steering/cali_left', methods=['POST'])  
           def routes__picarcontrols__steer_cali_left():
                self.pf.picarcontrols__steer_cali_left()
+               return jsonify({"status": "ok"}), 200
 
           @self.picar.route('/picar/steering/cali_right', methods=['POST'])
           def routes__picarcontrols__steer_cali_right():
                self.pf.picarcontrols__steer_cali_right()
+               return jsonify({"status": "ok"}), 200
           
 
           @self.picar.route('/picar/steering/steer/<angle>', methods=['POST'])
           def routes__picarcontrols__steer(angle):
-               self.pf.picarcontrols__steer(angle)
+                  try:
+                       self.pf.picarcontrols__steer(int(angle))
+                  except ValueError:
+                       self.pf.picarcontrols__steer(float(angle))
+                  return jsonify({"status": "ok", "angle": angle}), 200
 
           @self.picar.route('/picar/steering/reset_steer', methods=['POST'])
           def routes__picarcontrols__reset_steer():
                self.pf.picarcontrols__reset_steer()
+               return jsonify({"status": "ok"}), 200
 
           @self.picar.route('/picar/steering/test', methods=['POST'])
           def routes__picarsteering__test():
-               self.pf.picarsteering__test()
+               t = threading.Thread(target=self.pf.picarsteering__test, daemon=True)
+               t.start()
+               return jsonify({"status": "started"}), 202
           
          
                     
