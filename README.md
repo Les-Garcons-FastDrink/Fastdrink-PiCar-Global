@@ -184,9 +184,9 @@ python3
 #### **2. Importer les modules nécessaires**
 
 ```python
-from SunFounder_PiCar.picar.SunFounder_PCA9685 import Servo
-from SunFounder_PiCar.picar import filedb
-from SunFounder_PiCar.picar.front_wheels import Front_Wheels
+from SunFounder_PiCar.picar_local.SunFounder_PCA9685 import Servo
+from SunFounder_PiCar.picar_local import filedb
+from SunFounder_PiCar.picar_local.front_wheels import Front_Wheels
 ```
 
 #### **3. Initialiser les roues avant**

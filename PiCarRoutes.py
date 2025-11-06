@@ -33,7 +33,7 @@ class PiCarRoutes:
                     return {
                          "response": {
                               "status": 200,
-                              "datas": {
+                              "data": {
                                    "engines": {
                                         "engine_power_left": engine_power_left,
                                         "engine_power_right": engine_power_right
@@ -146,6 +146,7 @@ class PiCarRoutes:
 
           @self.picar.route('/picar/steering/steer/<angle>', methods=['POST'])
           def routes__picarcontrols__steer(angle):
+               
                   try:
                        self.pf.picarcontrols__steer(int(angle))
                   except ValueError:
@@ -156,6 +157,16 @@ class PiCarRoutes:
           def routes__picarcontrols__reset_steer():
                self.pf.picarcontrols__reset_steer()
                return jsonify({"status": "ok"}), 200
+          
+          @self.picar.route('/picar/steering/get_steering_offset', methods=['GET'])
+          def routes__picarcontrols__steer_get_offset():
+               offset = self.pf.picarcontrols__steer_get_offset()
+               return jsonify({
+                    "response": {
+                         "status": 200,
+                         "data": {"offset": offset}
+                    }
+               }), 200
 
           @self.picar.route('/picar/steering/test', methods=['POST'])
           def routes__picarsteering__test():

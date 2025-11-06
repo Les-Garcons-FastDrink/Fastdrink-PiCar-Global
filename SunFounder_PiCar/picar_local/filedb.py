@@ -22,7 +22,7 @@ class fileDB(object):
 		if db != None:
 			self.db = db
 		else:
-			self.db = "/home/pi/Documents/SunFounder_PiCar/picar/config"
+			self.db = "/home/pi/Documents/SunFounder_PiCar/picar_local/config"
 
 	def get(self, name, default_value=None):
 		"""Get value by data's name. Default value is for the arguemants do not exist"""
