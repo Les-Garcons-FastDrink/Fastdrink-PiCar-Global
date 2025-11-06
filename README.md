@@ -9,6 +9,7 @@ Ce projet utilise un Raspberry Pi avec un kit PiCar pour créer une voiture auto
 - [🔧 Configuration VSCode Remote](#-configuration-vscode-remote)
 - [⚙️ Calibration du PiCar](#️-calibration-du-picar)
 - [🐍 Utilisation de PiCarFunctions.py](#-utilisation-de-picarfunctionspy)
+- [🌐 Contrôle via Web App](#-contrôle-via-web-app)
 - [💻 Commandes utiles](#-commandes-utiles)
 - [⚠️ Problèmes courants](#️-problèmes-courants)
 - [🔌 Arrêt du PiCar](#-arrêt-du-picar)
@@ -307,6 +308,89 @@ python3 PiCarFunctions.py picarsteering__test
 
 ---
 
+## 🌐 Contrôle via Web App
+
+### 🚀 Démarrage du serveur API
+
+Pour contrôler le PiCar via une interface web au lieu des commandes terminal, lancez le serveur API depuis la racine du projet :
+
+```bash
+python3 PiCarRoutes.py
+```
+
+Le serveur sera disponible sur :
+- **Local** : `http://localhost:5000`
+- **Réseau** : `http://<adresse_ip_du_pi>:5000`
+
+> 💡 **Astuce** : Pour connaître l'IP de votre Pi, utilisez `hostname -I` ou `ip addr show`.
+
+### 📋 API Endpoints disponibles
+
+#### **🔍 Informations générales**
+- `GET /picar/ping` - Test de connexion
+- `GET /picar/get_all_data` - Récupère toutes les données des capteurs
+
+#### **📏 Capteur de distance**
+- `GET /picar/distancesensor/get_data` - Lecture du capteur de distance
+- `GET /picar/distancesensor/is_obstacle_detected` - Détection d'obstacle
+- `POST /picar/distancesensor/test` - Test du capteur (arrière-plan)
+
+#### **🔍 Détecteur de ligne**
+- `GET /picar/linedetector/get_data` - Lecture du détecteur de ligne
+- `POST /picar/linedetector/test` - Test du détecteur (arrière-plan)
+
+#### **🚗 Contrôle des moteurs**
+- `POST /picar/engines/forward` - Avancer
+- `POST /picar/engines/backward` - Reculer
+- `POST /picar/engines/stop` - Arrêter les moteurs
+- `POST /picar/engines/set_wheels_speed/<speed>` - Vitesse des deux roues (0-100)
+- `POST /picar/engines/set_lw_speed/<speed>` - Vitesse roue gauche
+- `POST /picar/engines/set_rw_speed/<speed>` - Vitesse roue droite
+- `POST /picar/engines/test` - Test des moteurs (arrière-plan)
+
+#### **🎯 Contrôle de direction**
+- `POST /picar/steering/steer/<angle>` - Tourner (angle en degrés)
+- `POST /picar/steering/reset_steer` - Remettre droit
+- `POST /picar/steering/cali_left` - Calibrer à gauche
+- `POST /picar/steering/cali_right` - Calibrer à droite
+- `POST /picar/steering/test` - Test de direction (arrière-plan)
+
+#### 💡 Exemples d'utilisation API
+
+**Faire avancer le PiCar :**
+```bash
+curl -X POST http://localhost:5000/picar/engines/forward
+```
+
+**Définir la vitesse :**
+```bash
+curl -X POST http://localhost:5000/picar/engines/set_wheels_speed/50
+```
+
+**Tourner à gauche :**
+```bash
+curl -X POST http://localhost:5000/picar/steering/steer/-15
+```
+
+**Récupérer toutes les données :**
+```bash
+curl http://localhost:5000/picar/get_all_data
+```
+
+---
+
+### 🎮 Interface Web de Contrôle
+
+Pour une expérience utilisateur amélioré, utilisez l'application web de contrôle :
+
+**🔗 [Fastdrink PiCar WebControl App](https://github.com/Les-Garcons-FastDrink/Fastdrink-PiCar-WebControlApp)**
+
+Cette application web offre :
+- ✅ Interface graphique intuitive
+- ✅ Contrôle en temps réel du PiCar
+- ✅ Visualisation des données des capteurs
+- ✅ Contrôle à distance via le réseau
+- ✅ Fonctions de calibration intégrées
 
 
 
