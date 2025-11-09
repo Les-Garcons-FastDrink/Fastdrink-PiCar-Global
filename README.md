@@ -80,7 +80,7 @@ ip addr
 
 > ℹ️ pas nécessaire avec raspberrypi.local
 
-**2. Se connecter via SSH par un terminal de votre ordinateur:**
+**2. Se connecter via SSH par un terminal de votre ordinateur: (utiliser Putty si vous voulez)**
 ```bash
 ssh pi@<adresse_ip_du_pi>
 ```
