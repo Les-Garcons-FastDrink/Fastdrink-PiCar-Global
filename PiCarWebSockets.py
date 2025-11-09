@@ -3,35 +3,42 @@ import websockets
 import json
 from PiCarFunctions import PiCarFunctions
 
-async def receivesAndSend(websocket):
-    print("Connection has been made with GoDot!")
+class PiCarWebSockets:
+    def __init__(self):
+        self.pf = PiCarFunctions()
 
-    try:
-        async for message in websocket:
-            print(f'Receiving: {message}')
+    async def receive_and_send(self, websocket):
+        print("Connection has been made!")
 
-            try:
-                data = json.loads(message)
-                velocity = data.get("velocity", 0)
-                direction = data.get("direction", 0)
-                print(f'Velocity: {velocity}, Direction: {direction}')
-            except json.JSONDecodeError:
-                print(f'Received non-JSON: {message}')
+        # Each message
+        try:
+            async for message in websocket:
+                # Receiving
+                try:
+                    data = json.loads(message)
+                    velocity = data.get("velocity", 0)
+                    direction = data.get("direction", 0)
+                    print(f'Received velocity: {velocity} and direction: {direction}')
+                except json.JSONDecodeError:
+                    print(f'Received non-JSON: {message}')
 
-            response = {
-                "distance": 100,
-                "line_follower": [1, 0, 1, 0, 1]
-            }
-            await websocket.send(json.dumps(response))
-            print(f'Sent: {response}')
+                # Sending
+                response = {
+                    "distance": self.pf.distancesensor__get_data(),
+                    "line_detector": self.pf.linedetector__get_data()
+                }
 
-    except websockets.exceptions.ConnectionClosed:
-        print("Godot client disconnected")
+                await websocket.send(json.dumps(response))
+                print(f'Sent: {response}')
 
-async def main():
-    async with websockets.serve(receivesAndSend, "0.0.0.0", 8765):
-        print("WebSocket server running on ws://0.0.0.0:8765")
-        await asyncio.Future()
+        except websockets.exceptions.ConnectionClosed:
+            print("Connection has been lost!")
+
+    async def receive_and_send_handler(self):
+        async with websockets.serve(self.receive_and_send, "0.0.0.0", 8765):
+            print("WebSocket server running on ws://0.0.0.0:8765")
+            await asyncio.Future()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    piCar_websockets = PiCarWebSockets()
+    asyncio.run(piCar_websockets.receive_and_send_handler())
