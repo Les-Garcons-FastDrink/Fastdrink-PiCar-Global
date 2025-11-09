@@ -74,6 +74,8 @@ Le Raspberry Pi utilise les identifiants par défaut :
 
 ```bash
 hostname -I
+ou
+ip addr
 ```
 
 > ℹ️ pas nécessaire avec raspberrypi.local
