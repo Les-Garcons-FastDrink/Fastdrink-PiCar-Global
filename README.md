@@ -43,7 +43,8 @@ Pour économiser les batteries, connectez directement le Pi à votre ordinateur 
 ---
 
 
-
+## 🔌 GitHub avec le PiCar
+Dû à des problèmes avec le fetch (voir pourquoi ça faisait pas ça pour Arthur), on doit se connecter avec des clées SSH. Une clée SSH a été créé pour le Raspberry Pi, il suffit simplement d'ajouter la clée publique (id_ed25519.pub) sur vos clées SSH de Github: https://github.com/settings/keys
 
 ## 🌐 Connexion SSH
 
