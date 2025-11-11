@@ -16,16 +16,16 @@ class PiCarWebSockets:
                 # Receiving
                 try:
                     data = json.loads(message)
-                    velocity = data.get("velocity", 0)
-                    direction = data.get("direction", 0)
-                    print(f'Received velocity: {velocity} and direction: {direction}')
+                    steer_angle = data.get("steer_angle", 0)
+                    engine_power = data.get("engine_power", 0)
+                    print(f'Received engine_power: {engine_power} and steer_angle: {steer_angle}')
                 except json.JSONDecodeError:
                     print(f'Received non-JSON: {message}')
 
                 # Sending
                 response = {
-                    "distance": self.pf.distancesensor__get_data(),
-                    "line_detector": self.pf.linedetector__get_data()
+                    "distance_sensor": self.pf.distancesensor__get_data(),
+                    "line_sensor": self.pf.linedetector__get_data()
                 }
 
                 await websocket.send(json.dumps(response))
