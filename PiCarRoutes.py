@@ -23,13 +23,19 @@ class PiCarRoutes:
           
           @self.picar.route('/picar/get_all_data', methods=['GET'])
           def routes__get_all_data():
-               try :
-                    
+               try:
+                    # optional query param: ?filtered_data=true
+                    q = request.args.get('filtered_data', 'false')
+                    filtered_data = str(q).lower() in ('1', 'true', 'yes', 'y')
+
                     engine_power_left, engine_power_right = self.pf.picarcontrols__get_speed()
                     steer_data = self.pf.picarcontrols__steer_get_angle()
-                    distance_sensor_data = self.pf.distancesensor__get_data()
                     line_detector_data = self.pf.linedetector__get_data()
-                    
+                    if filtered_data:
+                         distance_sensor_data = self.pf.distancesensor__get_filtered_data()
+                    else:
+                         distance_sensor_data = self.pf.distancesensor__get_data()
+
                     return {
                          "response": {
                               "status": 200,
@@ -47,9 +53,8 @@ class PiCarRoutes:
                except Exception as e:
                     print(f"[ERROR] /picar/get_all_data: {e}")
                     return {
-                         "response" :
-                         {
-                              "status" : 500,
+                         "response": {
+                              "status": 500,
                               "error": str(e)
                          }
                     }
@@ -79,6 +84,10 @@ class PiCarRoutes:
           @self.picar.route('/picar/distancesensor/get_data', methods=['GET'])
           def routes__distancesensor__get_data():
                return self.pf.distancesensor__get_data()
+          
+          @self.picar.route('/picar/distancesensor/get_filtered_data', methods=['GET'])
+          def routes__distancesensor__get_filtered_data():
+               return self.pf.distancesensor__get_filtered_data()
 
           @self.picar.route('/picar/distancesensor/is_obstacle_detected', methods=['GET'])
           def routes__distancesensor__is_obstacle_detected():
