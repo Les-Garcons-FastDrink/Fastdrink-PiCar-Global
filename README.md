@@ -9,6 +9,7 @@ Ce projet utilise un Raspberry Pi avec un kit PiCar pour créer une voiture auto
 - [🔧 Configuration VSCode Remote](#-configuration-vscode-remote)
 - [⚙️ Calibration du PiCar](#️-calibration-du-picar)
 - [🐍 Utilisation de PiCarFunctions.py](#-utilisation-de-picarfunctionspy)
+- [🌐 Contrôle via Web App](#-contrôle-via-web-app)
 - [💻 Commandes utiles](#-commandes-utiles)
 - [⚠️ Problèmes courants](#️-problèmes-courants)
 - [🔌 Arrêt du PiCar](#-arrêt-du-picar)
@@ -42,7 +43,8 @@ Pour économiser les batteries, connectez directement le Pi à votre ordinateur 
 ---
 
 
-
+## 🔌 GitHub avec le PiCar
+Dû à des problèmes avec le fetch (voir pourquoi ça faisait pas ça pour Arthur), on doit se connecter avec des clées SSH. Une clée SSH a été créé pour le Raspberry Pi, il suffit simplement d'ajouter la clée publique (id_ed25519.pub) sur vos clées SSH de Github: https://github.com/settings/keys
 
 ## 🌐 Connexion SSH
 
@@ -73,11 +75,13 @@ Le Raspberry Pi utilise les identifiants par défaut :
 
 ```bash
 hostname -I
+ou
+ip addr
 ```
 
 > ℹ️ pas nécessaire avec raspberrypi.local
 
-**2. Se connecter via SSH par un terminal de votre ordinateur:**
+**2. Se connecter via SSH par un terminal de votre ordinateur: (utiliser Putty si vous voulez)**
 ```bash
 ssh pi@<adresse_ip_du_pi>
 ```
@@ -184,9 +188,9 @@ python3
 #### **2. Importer les modules nécessaires**
 
 ```python
-from SunFounder_PiCar.picar.SunFounder_PCA9685 import Servo
-from SunFounder_PiCar.picar import filedb
-from SunFounder_PiCar.picar.front_wheels import Front_Wheels
+from SunFounder_PiCar.picar_local.SunFounder_PCA9685 import Servo
+from SunFounder_PiCar.picar_local import filedb
+from SunFounder_PiCar.picar_local.front_wheels import Front_Wheels
 ```
 
 #### **3. Initialiser les roues avant**
@@ -307,6 +311,89 @@ python3 PiCarFunctions.py picarsteering__test
 
 ---
 
+## 🌐 Contrôle via Web App
+
+### 🚀 Démarrage du serveur API
+
+Pour contrôler le PiCar via une interface web au lieu des commandes terminal, lancez le serveur API depuis la racine du projet :
+
+```bash
+python3 PiCarRoutes.py
+```
+
+Le serveur sera disponible sur :
+- **Local** : `http://localhost:5000`
+- **Réseau** : `http://<adresse_ip_du_pi>:5000`
+
+> 💡 **Astuce** : Pour connaître l'IP de votre Pi, utilisez `hostname -I` ou `ip addr show`.
+
+### 📋 API Endpoints disponibles
+
+#### **🔍 Informations générales**
+- `GET /picar/ping` - Test de connexion
+- `GET /picar/get_all_data` - Récupère toutes les données des capteurs
+
+#### **📏 Capteur de distance**
+- `GET /picar/distancesensor/get_data` - Lecture du capteur de distance
+- `GET /picar/distancesensor/is_obstacle_detected` - Détection d'obstacle
+- `POST /picar/distancesensor/test` - Test du capteur (arrière-plan)
+
+#### **🔍 Détecteur de ligne**
+- `GET /picar/linedetector/get_data` - Lecture du détecteur de ligne
+- `POST /picar/linedetector/test` - Test du détecteur (arrière-plan)
+
+#### **🚗 Contrôle des moteurs**
+- `POST /picar/engines/forward` - Avancer
+- `POST /picar/engines/backward` - Reculer
+- `POST /picar/engines/stop` - Arrêter les moteurs
+- `POST /picar/engines/set_wheels_speed/<speed>` - Vitesse des deux roues (0-100)
+- `POST /picar/engines/set_lw_speed/<speed>` - Vitesse roue gauche
+- `POST /picar/engines/set_rw_speed/<speed>` - Vitesse roue droite
+- `POST /picar/engines/test` - Test des moteurs (arrière-plan)
+
+#### **🎯 Contrôle de direction**
+- `POST /picar/steering/steer/<angle>` - Tourner (angle en degrés)
+- `POST /picar/steering/reset_steer` - Remettre droit
+- `POST /picar/steering/cali_left` - Calibrer à gauche
+- `POST /picar/steering/cali_right` - Calibrer à droite
+- `POST /picar/steering/test` - Test de direction (arrière-plan)
+
+#### 💡 Exemples d'utilisation API
+
+**Faire avancer le PiCar :**
+```bash
+curl -X POST http://localhost:5000/picar/engines/forward
+```
+
+**Définir la vitesse :**
+```bash
+curl -X POST http://localhost:5000/picar/engines/set_wheels_speed/50
+```
+
+**Tourner à gauche :**
+```bash
+curl -X POST http://localhost:5000/picar/steering/steer/-15
+```
+
+**Récupérer toutes les données :**
+```bash
+curl http://localhost:5000/picar/get_all_data
+```
+
+---
+
+### 🎮 Interface Web de Contrôle
+
+Pour une expérience utilisateur amélioré, utilisez l'application web de contrôle :
+
+**🔗 [Fastdrink PiCar WebControl App](https://github.com/Les-Garcons-FastDrink/Fastdrink-PiCar-WebControlApp)**
+
+Cette application web offre :
+- ✅ Interface graphique intuitive
+- ✅ Contrôle en temps réel du PiCar
+- ✅ Visualisation des données des capteurs
+- ✅ Contrôle à distance via le réseau
+- ✅ Fonctions de calibration intégrées
 
 
 

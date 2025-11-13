@@ -22,8 +22,8 @@ class PiCarFunctions:
           # ------------------------
           # COMPONENTS
           # ------------------------
-          self.fw = front_wheels.Front_Wheels(db='/home/pi/Documents/SunFounder_PiCar/picar/config')
-          self.bw = back_wheels.Back_Wheels(db='/home/pi/Documents/SunFounder_PiCar/picar/config')
+          self.fw = front_wheels.Front_Wheels(db='/home/pi/Documents/SunFounder_PiCar/picar_local/config')
+          self.bw = back_wheels.Back_Wheels(db='/home/pi/Documents/SunFounder_PiCar/picar_local/config')
           self.ld = Line_Follower.Line_Follower()
           self.ds = Ultrasonic_Sensor(17)
 
@@ -141,7 +141,16 @@ class PiCarFunctions:
           
           
      ### STEERING
-     def picarcontrols__steer(self, angle):
+     def picarcontrols__steer(self, angle : int):
+          """
+          Parameter
+          ---------
+               angle : int
+                    Steering angle, in degrees. Must be an integer between -45 and 45 inclusive.
+                    A value of 0 corresponds to the neutral position, where the wheels are perfectly straight.
+          """
+          angle = int(angle)
+          angle += 90
           self.fw.turn(angle)
           
      def picarcontrols__steer_get_angle(self):
@@ -164,22 +173,17 @@ class PiCarFunctions:
           self.fw.cali_ok()   
        
      def picarsteering__test(self):
-          try:
-               while True:
-                    print("turn_left")
-                    self.picarcontrols__steer(-10)
-                    time.sleep(1)
-                    print("turn_straight")
-                    self.picarcontrols__reset_steer()
-                    time.sleep(1)
-                    print("turn_right")
-                    self.picarcontrols__steer(10)
-                    time.sleep(1)
-                    print("turn_straight")
-                    self.picarcontrols__reset_steer()
-                    time.sleep(1)
-          except KeyboardInterrupt:
-               self.picarcontrols__reset_steer()
+          print("turn_left")
+          self.picarcontrols__steer(-45)
+          time.sleep(1)
+          print("turn_straight")
+          self.picarcontrols__reset_steer()
+          time.sleep(1)
+          print("turn_right")
+          self.picarcontrols__steer(45)
+          time.sleep(1)
+          print("turn_straight")
+          self.picarcontrols__reset_steer()
           
           
           

@@ -21,7 +21,7 @@ class Front_Wheels(object):
 	_DEBUG = False
 	_DEBUG_INFO = 'DEBUG "front_wheels.py":'
 
-	def __init__(self, debug=False, db="/home/pi/Documents/SunFounder_PiCar/picar/config", bus_number=1, channel=FRONT_WHEEL_CHANNEL):
+	def __init__(self, debug=False, db="/home/pi/Documents/SunFounder_PiCar/picar_local/config", bus_number=1, channel=FRONT_WHEEL_CHANNEL):
 		print("[Front_Wheels] __init__ loaded")		
 		self.db = filedb.fileDB(db=db)
 		self._channel = channel
@@ -163,7 +163,7 @@ class Front_Wheels(object):
 		self.db.set('turning_offset', self._turning_offset)
   
 	def get_offset(self):
-		return self._turning_offset
+		return self.cali_turning_offset
 
 def test(chn=0):
 	import time
