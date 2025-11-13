@@ -17,7 +17,7 @@ import picar_local
 
 
 class PiCarFunctions:
-     
+
      def __init__(self):
           # ------------------------
           # COMPONENTS
@@ -34,36 +34,35 @@ class PiCarFunctions:
           picar_local.setup()
           self.fw.ready()
           self.bw.ready()
-          
+
           # ------------------------
           # SETTINGS
           # ------------------------
           self.distancesensor_treshold = 10
-          
+
      # ------------------------
      # LINE FOLLOWER
      # ------------------------
      def linedetector__get_data(self):
           return self.ld.read_digital()
-     
+
      def linedetector__test(self):
           while True:
                print(self.linedetector__get_data())
                print('')
                time.sleep(0.5)
-     
-     
+
      # ------------------------
      # DISTANCE SENSOR
      # ------------------------
      def distancesensor__get_data(self):
           return self.ds.get_distance()
-     
+
      def distancesensor__is_obstacle_detected(self):
           if self.distancesensor__get_data() < self.distancesensor_treshold:
                return True
-               
-     
+
+
      def distancesensor__test(self):
           while True:
                distance = self.ds.get_distance()
@@ -71,22 +70,22 @@ class PiCarFunctions:
                if distance != -1:
                     print('distance', distance, 'cm')
                time.sleep(0.1)
-     
-     
+
+
      # ------------------------
      # PICAR CONTROLS
      # ------------------------
-     
+
      ### ENGINES
      def picarcontrols__forward(self):
           self.bw.left_wheel.backward()
           self.bw.right_wheel.backward()
 
-          
+
      def picarcontrols__backward(self):
           self.bw.left_wheel.forward()
           self.bw.right_wheel.forward()
-          
+
      def picarcontrols__set_wheels_speed(self , speed : int):
           """
           Parameter
@@ -94,22 +93,28 @@ class PiCarFunctions:
                speed : int
                     Speed of engines. Must be an int from 0 to 100
           """
-          
-          self.picarcontrols__set_rw_speed(speed)
-          self.picarcontrols__set_lw_speed(speed)
-          
+          if(speed >= 0):
+               self.picarcontrols__set_rw_speed(speed)
+               self.picarcontrols__set_lw_speed(speed)
+               self.picarcontrols__forward()
+          elif(speed < 0):
+               self.picarcontrols__set_rw_speed(-speed)
+               self.picarcontrols__set_lw_speed(-speed)
+               self.picarcontrols__backward()
+
+
      def picarcontrols__set_lw_speed(self, speed):
           self.bw.left_wheel.speed = int(speed)
-          
+
      def picarcontrols__set_rw_speed(self, speed):
           self.bw.right_wheel.speed = int(speed)
-          
+
      def picarcontrols__get_speed(self):
           return self.bw.left_wheel.speed, self.bw.right_wheel.speed
-          
+
      def picarcontrols__stop(self):
           self.picarcontrols__set_wheels_speed(0)
-          
+
      def picarengine__test(self):
           DELAY = 0.01
           try:
@@ -138,8 +143,8 @@ class PiCarFunctions:
           finally:
                print("Finished, motor stop")
                self.picarcontrols__set_wheels_speed(0)
-          
-          
+
+
      ### STEERING
      def picarcontrols__steer(self, angle : int):
           """
@@ -150,28 +155,29 @@ class PiCarFunctions:
                     A value of 0 corresponds to the neutral position, where the wheels are perfectly straight.
           """
           angle = int(angle)
+          angle *= -1
           angle += 90
           self.fw.turn(angle)
-          
+
      def picarcontrols__steer_get_angle(self):
           return self.fw.get_angle()
-     
+
      def picarcontrols__steer_get_offset(self):
           return self.fw.get_offset()
-          
+
      def picarcontrols__reset_steer(self):
           self.fw.turn_straight()
-     
+
      def picarcontrols__steer_cali_left(self):
           self.fw.calibration()
           self.fw.cali_left()
           self.fw.cali_ok()
-     
+
      def picarcontrols__steer_cali_right(self):
           self.fw.calibration()
           self.fw.cali_right()
-          self.fw.cali_ok()   
-       
+          self.fw.cali_ok()
+
      def picarsteering__test(self):
           print("turn_left")
           self.picarcontrols__steer(-45)
@@ -184,16 +190,16 @@ class PiCarFunctions:
           time.sleep(1)
           print("turn_straight")
           self.picarcontrols__reset_steer()
-          
-          
-          
+
+
+
 if __name__ == "__main__":
     pf = PiCarFunctions()  # crée l’instance de la classe
-    
+
     if len(sys.argv) < 2:
         print("Usage: python3 PiCarFunctions.py <method_name> [args...]")
         sys.exit(1)
-    
+
     method_name = sys.argv[1]  # le nom de la méthode passée en argument
     args = sys.argv[2:]        # arguments supplémentaires
 
@@ -204,7 +210,6 @@ if __name__ == "__main__":
         method(*args)
     else:
         print(f"Erreur : La méthode '{method_name}' n'existe pas dans PiCarFunctions")
-          
-          
-          
-     
+
+
+

@@ -6,6 +6,8 @@ from PiCarFunctions import PiCarFunctions
 class PiCarWebSockets:
     def __init__(self):
         self.pf = PiCarFunctions()
+        self.pf.picarcontrols__set_lw_speed(0)
+        self.pf.picarcontrols__set_rw_speed(0)
 
     async def receive_and_send(self, websocket):
         print("Connection has been made!")
@@ -19,6 +21,10 @@ class PiCarWebSockets:
                     steer_angle = data.get("steer_angle", 0)
                     engine_power = data.get("engine_power", 0)
                     print(f'Received engine_power: {engine_power} and steer_angle: {steer_angle}')
+
+                    self.pf.picarcontrols__steer(steer_angle)
+                    self.pf.picarcontrols__set_wheels_speed(int(50 *engine_power))
+
                 except json.JSONDecodeError:
                     print(f'Received non-JSON: {message}')
 
