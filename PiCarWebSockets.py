@@ -30,7 +30,7 @@ class PiCarWebSockets:
 
                 # Sending
                 response = {
-                    "distance_sensor": self.pf.distancesensor__get_data(),
+                    "distance_sensor": self.pf.distancesensor__set_filtered_data(),
                     "line_sensor": self.pf.linedetector__get_data()
                 }
 

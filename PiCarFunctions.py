@@ -8,9 +8,12 @@ sys.path.append(os.path.abspath("./SunFounder_PiCar"))
 from SunFounder_Line_Follower import Line_Follower
 from ultrasonic_module import Ultrasonic_Sensor
 from picar_local import front_wheels, back_wheels
+import numpy as np
+from scipy import signal
 print(front_wheels.__file__)
 import time
 import picar_local
+import threading
 
 
 
@@ -26,20 +29,65 @@ class PiCarFunctions:
           self.bw = back_wheels.Back_Wheels(db='/home/pi/Documents/SunFounder_PiCar/picar_local/config')
           self.ld = Line_Follower.Line_Follower()
           self.ds = Ultrasonic_Sensor(17)
-
-
+          
           # ------------------------
           # SETUP
           # ------------------------
           picar_local.setup()
           self.fw.ready()
           self.bw.ready()
-
+          
+          ### FILTER SETUP
+          freq_echantillonage = 40
+          freq_coupure_hz = 4
+          freq_coupure_normalisee = freq_coupure_hz/(freq_echantillonage/2)
+          butter_ordre = 2
+          
+          self.filter_b, self.filter_a = signal.butter(butter_ordre, freq_coupure_normalisee)
+          
+          # Initialiser le buffer de distance avec des lectures initiales
+          self.distance_array = [self.ds.get_distance() for _ in range(3)]
+          
+          # Initialiser l'état du filtre (zi)
+          self.filter_zi = signal.lfilter_zi(self.filter_b, self.filter_a) * self.distance_array[0]
+          
           # ------------------------
           # SETTINGS
           # ------------------------
           self.distancesensor_treshold = 10
-
+          
+          # ------------------------
+          # THREADING
+          # ------------------------
+          self._running = False
+          self._lock = threading.Lock()  # Pour protéger distance_array
+          self.th1 = None
+          
+          # Démarrer le thread automatiquement
+          self.__init_distancesensor_loop_thread__()
+          
+     def __del__(self):
+          """Nettoyage à la destruction de l'objet"""
+          self.stop_distance_sensor_thread()
+     
+          
+     def __init_distancesensor_loop_thread__(self):
+          self._running = True
+          self.th1 = threading.Thread(target=self.__start_distancesensor_loop__, daemon=True)
+          self.th1.start()
+    
+     def __start_distancesensor_loop__(self):
+          """Boucle qui tourne en continu pour mettre à jour le capteur"""
+          while self._running:
+               self.distancesensor__set_filtered_data()
+               time.sleep(0.025)  # 40 Hz
+     
+     def stop_distance_sensor_thread(self):
+          """Arrête proprement le thread du capteur de distance"""
+          self._running = False
+          if self.th1 is not None:
+               self.th1.join(timeout=1.0)
+          
      # ------------------------
      # LINE FOLLOWER
      # ------------------------
@@ -55,14 +103,40 @@ class PiCarFunctions:
      # ------------------------
      # DISTANCE SENSOR
      # ------------------------
+     
      def distancesensor__get_data(self):
           return self.ds.get_distance()
-
+     
+     def distancesensor__get_filtered_data(self):
+          """Retourne la dernière valeur filtrée de manière thread-safe"""
+          with self._lock:
+               return self.distance_array[-1]
+     
+     def distancesensor__set_filtered_data(self):
+          """Filtre la nouvelle mesure et met à jour le buffer"""
+          distance = self.distancesensor__get_data()
+          
+          if distance == -1:  # Lecture invalide
+               return
+          
+          # Filtrer avec maintien d'état
+          filtered_distance, self.filter_zi = signal.lfilter(
+               self.filter_b, 
+               self.filter_a, 
+               [distance], 
+               zi=self.filter_zi
+          )
+          
+          # Mise à jour thread-safe du buffer
+          with self._lock:
+               self.distance_array.append(filtered_distance[0])
+               self.distance_array.pop(0)
+          
+     
      def distancesensor__is_obstacle_detected(self):
-          if self.distancesensor__get_data() < self.distancesensor_treshold:
-               return True
-
-
+          return self.distancesensor__get_filtered_data() < self.distancesensor_treshold
+               
+     
      def distancesensor__test(self):
           while True:
                distance = self.ds.get_distance()
@@ -202,6 +276,8 @@ if __name__ == "__main__":
 
     method_name = sys.argv[1]  # le nom de la méthode passée en argument
     args = sys.argv[2:]        # arguments supplémentaires
+
+          
 
     # Vérifie si la méthode existe dans la classe
     if hasattr(pf, method_name):
