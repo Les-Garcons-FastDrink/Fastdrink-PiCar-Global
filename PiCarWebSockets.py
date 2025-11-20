@@ -30,7 +30,7 @@ class PiCarWebSockets:
 
                 # Sending
                 response = {
-                    "distance_sensor": self.pf.distancesensor__set_filtered_data(),
+                    "distance_sensor": self.pf.distancesensor__get_filtered_data(),
                     "line_sensor": self.pf.linedetector__get_data()
                 }
 
@@ -39,6 +39,10 @@ class PiCarWebSockets:
 
         except websockets.exceptions.ConnectionClosed:
             print("Connection has been lost!")
+            self.pf.picarcontrols__steer(0)
+            self.picarcontrols__set_rw_speed(0)
+            self.picarcontrols__set_lw_speed(0)
+            self.picarcontrols__forward()
 
     async def receive_and_send_handler(self):
         async with websockets.serve(self.receive_and_send, "0.0.0.0", 8765):
