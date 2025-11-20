@@ -55,6 +55,10 @@ class PiCarFunctions:
           # SETTINGS
           # ------------------------
           self.distancesensor_treshold = 10
+          self.acceleration_ns = 0.0000000098
+          self.current_speed = 0
+          self.acceleration_start_delta_time = 0
+          self.is_first_acceleration = True
           
           # ------------------------
           # THREADING
@@ -165,16 +169,23 @@ class PiCarFunctions:
           Parameter
           ---------
                speed : int
-                    Speed of engines. Must be an int from 0 to 100
+                    Speed of engines. Must be an int from -100 to 100
           """
-          if(speed >= 0):
-               self.picarcontrols__set_rw_speed(speed)
-               self.picarcontrols__set_lw_speed(speed)
+          #On détermine la vitesse après accélération
+          if(self.is_first_acceleration):
+               self.acceleration_start_delta_time = time.monotonic_ns()
+               self.is_first_acceleration = False
+          self.current_speed, self.acceleration_start_delta_time = self.picarcontrols__accelerate_to_speed(self.current_speed, speed, self.acceleration_start_delta_time)
+          #On applique la nouvelle vitesse au bolide
+          if(self.current_speed >= 0):
+               self.picarcontrols__set_rw_speed(int(self.current_speed))
+               self.picarcontrols__set_lw_speed(int(self.current_speed))
                self.picarcontrols__forward()
-          elif(speed < 0):
-               self.picarcontrols__set_rw_speed(-speed)
-               self.picarcontrols__set_lw_speed(-speed)
+          elif(self.current_speed < 0):
+               self.picarcontrols__set_rw_speed(-int(self.current_speed))
+               self.picarcontrols__set_lw_speed(-int(self.current_speed))
                self.picarcontrols__backward()
+
 
 
      def picarcontrols__set_lw_speed(self, speed):
@@ -264,6 +275,20 @@ class PiCarFunctions:
           time.sleep(1)
           print("turn_straight")
           self.picarcontrols__reset_steer()
+
+     def picarcontrols__accelerate_to_speed(self, current_speed : float, target_speed : int, start_time : int):
+          #start_time doit être en ns
+          delta_speed = 0
+          if (current_speed < target_speed):
+               current_time = time.monotonic_ns()
+               delta_speed = (current_time - start_time) * self.acceleration_ns
+          else:
+               current_time = time.monotonic_ns()
+               delta_speed = (start_time - current_time) * self.acceleration_ns
+          current_speed = current_speed + delta_speed
+          end_time = time.monotonic_ns()
+          return current_speed, end_time
+
 
 
 
