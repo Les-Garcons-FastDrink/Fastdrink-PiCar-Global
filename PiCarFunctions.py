@@ -99,6 +99,18 @@ class PiCarFunctions:
                print(self.linedetector__get_data())
                print('')
                time.sleep(0.5)
+               
+     def linedetector__set_reference_white(self):
+          self.ld.set_reference_white()
+          
+     def linedetector__set_reference_black(self):
+          self.ld.set_reference_black()
+          
+     def linedetector__set_reference(self):
+          self.ld.set_reference()
+          
+     def linedetector__get_referemce(self):
+          return self.ld.get_reference()
 
      # ------------------------
      # DISTANCE SENSOR
