@@ -64,7 +64,7 @@ def main():
 		print(lt_status_now)
 		# Angle calculate
 		if	lt_status_now == [0,0,1,0,0]:
-			step = 0	
+			step = 0
 		elif lt_status_now == [0,1,1,0,0] or lt_status_now == [0,0,1,1,0]:
 			step = a_step
 		elif lt_status_now == [0,1,0,0,0] or lt_status_now == [0,0,0,1,0]:
@@ -95,7 +95,7 @@ def main():
 				bw.speed = backward_speed
 				bw.backward()
 				fw.turn(tmp_angle)
-				
+
 				lf.wait_tile_center()
 				bw.stop()
 
@@ -105,11 +105,11 @@ def main():
 				bw.forward()
 				time.sleep(0.2)
 
-				
+
 
 		else:
 			off_track_count = 0
-	
+
 		fw.turn(turning_angle)
 		time.sleep(delay)
 
@@ -155,9 +155,10 @@ if __name__ == '__main__':
 	try:
 		try:
 			while True:
-				setup()
-				main()
+				#setup()
+				#main()
 				#straight_run()
+				cali()
 		except Exception as e:
 			print(e)
 			print('error try again in 5')
