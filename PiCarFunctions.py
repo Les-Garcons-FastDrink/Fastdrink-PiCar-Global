@@ -206,6 +206,19 @@ class PiCarFunctions:
 
      def picarcontrols__stop(self):
           self.picarcontrols__set_wheels_speed(0)
+          
+     def picarcontrols__engines_cali_left(self):
+          self.bw.calibration()
+          self.bw.cali_left()
+          self.bw.cali_ok()
+
+     def picarcontrols__engines_cali_right(self):
+          self.bw.calibration()
+          self.bw.cali_right()
+          self.bw.cali_ok()
+          
+     def picarcontrols__engines_get_calibration_values(self):
+          return self.bw.get_calibration_values()
 
      def picarengine__test(self):
           DELAY = 0.01

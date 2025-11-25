@@ -149,6 +149,9 @@ class Back_Wheels(object):
 		self.db.set('forward_A', self.forward_A)
 		self.db.set('forward_B', self.forward_B)
 		self.stop()
+	
+	def get_calibration_values(self):
+		return self.forward_A, self.forward_B
 
 def test():
 	import time

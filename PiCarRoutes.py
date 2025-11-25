@@ -138,6 +138,8 @@ class PiCarRoutes:
                t = threading.Thread(target=self.pf.distancesensor__test, daemon=True)
                t.start()
                return jsonify({"status": "started"}), 202
+          
+
 
 
           # ------------------------
@@ -180,6 +182,21 @@ class PiCarRoutes:
                t = threading.Thread(target=self.pf.picarengine__test, daemon=True)
                t.start()
                return jsonify({"status": "started"}), 202
+          
+          @self.picar.route('/picar/engines/cali_left', methods=['POST'])  
+          def routes__picarcontrols__engines_cali_left():
+               self.pf.picarcontrols__engines_cali_left()
+               return jsonify({"status": "ok"}), 200
+
+          @self.picar.route('/picar/engines/cali_right', methods=['POST'])
+          def routes__picarcontrols__engines_cali_right():
+               self.pf.picarcontrols__engines_cali_right()
+               return jsonify({"status": "ok"}), 200
+          
+          @self.picar.route('/picar/engines/engines_get_calibration_values')
+          def routes__picarcontrols__engines_get_calibration_values():
+               return self.pf.picarcontrols__engines_get_calibration_values()
+
 
           ### STEERING
           @self.picar.route('/picar/steering/cali_left', methods=['POST'])  
