@@ -170,13 +170,13 @@ class PiCarFunctions:
 
      ### ENGINES
      def picarcontrols__forward(self):
-          self.bw.left_wheel.backward()
-          self.bw.right_wheel.backward()
+          self.bw.left_wheel.forward()
+          self.bw.right_wheel.forward()
 
 
      def picarcontrols__backward(self):
-          self.bw.left_wheel.forward()
-          self.bw.right_wheel.forward()
+          self.bw.left_wheel.backward()
+          self.bw.right_wheel.backward()
 
      def picarcontrols__set_wheels_speed(self , speed : int):
           """
