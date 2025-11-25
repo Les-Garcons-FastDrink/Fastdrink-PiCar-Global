@@ -29,65 +29,69 @@ class PiCarFunctions:
           self.bw = back_wheels.Back_Wheels(db='/home/pi/Documents/SunFounder_PiCar/picar_local/config')
           self.ld = Line_Follower.Line_Follower()
           self.ds = Ultrasonic_Sensor(17)
-          
+
           # ------------------------
           # SETUP
           # ------------------------
           picar_local.setup()
           self.fw.ready()
           self.bw.ready()
-          
+
           ### FILTER SETUP
           freq_echantillonage = 40
           freq_coupure_hz = 4
           freq_coupure_normalisee = freq_coupure_hz/(freq_echantillonage/2)
           butter_ordre = 2
-          
+
           self.filter_b, self.filter_a = signal.butter(butter_ordre, freq_coupure_normalisee)
-          
+
           # Initialiser le buffer de distance avec des lectures initiales
           self.distance_array = [self.ds.get_distance() for _ in range(3)]
-          
+
           # Initialiser l'état du filtre (zi)
           self.filter_zi = signal.lfilter_zi(self.filter_b, self.filter_a) * self.distance_array[0]
-          
+
           # ------------------------
           # SETTINGS
           # ------------------------
           self.distancesensor_treshold = 10
-          
+          self.acceleration_ns = 0.0000000098
+          self.current_speed = 0
+          self.acceleration_start_delta_time = 0
+          self.is_first_acceleration = True
+
           # ------------------------
           # THREADING
           # ------------------------
           self._running = False
           self._lock = threading.Lock()  # Pour protéger distance_array
           self.th1 = None
-          
+
           # Démarrer le thread automatiquement
           self.__init_distancesensor_loop_thread__()
-          
+
      def __del__(self):
           """Nettoyage à la destruction de l'objet"""
           self.stop_distance_sensor_thread()
-     
-          
+
+
      def __init_distancesensor_loop_thread__(self):
           self._running = True
           self.th1 = threading.Thread(target=self.__start_distancesensor_loop__, daemon=True)
           self.th1.start()
-    
+
      def __start_distancesensor_loop__(self):
           """Boucle qui tourne en continu pour mettre à jour le capteur"""
           while self._running:
                self.distancesensor__set_filtered_data()
                time.sleep(0.025)  # 40 Hz
-     
+
      def stop_distance_sensor_thread(self):
           """Arrête proprement le thread du capteur de distance"""
           self._running = False
           if self.th1 is not None:
                self.th1.join(timeout=1.0)
-          
+
      # ------------------------
      # LINE FOLLOWER
      # ------------------------
@@ -103,40 +107,40 @@ class PiCarFunctions:
      # ------------------------
      # DISTANCE SENSOR
      # ------------------------
-     
+
      def distancesensor__get_data(self):
           return self.ds.get_distance()
-     
+
      def distancesensor__get_filtered_data(self):
           """Retourne la dernière valeur filtrée de manière thread-safe"""
           with self._lock:
                return self.distance_array[-1]
-     
+
      def distancesensor__set_filtered_data(self):
           """Filtre la nouvelle mesure et met à jour le buffer"""
           distance = self.distancesensor__get_data()
-          
+
           if distance == -1:  # Lecture invalide
                return
-          
+
           # Filtrer avec maintien d'état
           filtered_distance, self.filter_zi = signal.lfilter(
-               self.filter_b, 
-               self.filter_a, 
-               [distance], 
+               self.filter_b,
+               self.filter_a,
+               [distance],
                zi=self.filter_zi
           )
-          
+
           # Mise à jour thread-safe du buffer
           with self._lock:
                self.distance_array.append(filtered_distance[0])
                self.distance_array.pop(0)
-          
-     
+
+
      def distancesensor__is_obstacle_detected(self):
           return self.distancesensor__get_filtered_data() < self.distancesensor_treshold
-               
-     
+
+
      def distancesensor__test(self):
           while True:
                distance = self.ds.get_distance()
@@ -165,16 +169,24 @@ class PiCarFunctions:
           Parameter
           ---------
                speed : int
-                    Speed of engines. Must be an int from 0 to 100
+                    Speed of engines. Must be an int from -100 to 100
           """
-          if(speed >= 0):
-               self.picarcontrols__set_rw_speed(speed)
-               self.picarcontrols__set_lw_speed(speed)
+
+          #On détermine la vitesse après accélération
+          if(self.is_first_acceleration):
+               self.acceleration_start_delta_time = time.monotonic_ns()
+               self.is_first_acceleration = False
+          self.current_speed, self.acceleration_start_delta_time = self.picarcontrols__accelerate_to_speed(self.current_speed, speed, self.acceleration_start_delta_time)
+          #On applique la nouvelle vitesse au bolide
+          if(self.current_speed >= 0):
+               self.picarcontrols__set_rw_speed(int(self.current_speed))
+               self.picarcontrols__set_lw_speed(int(self.current_speed))
                self.picarcontrols__forward()
-          elif(speed < 0):
-               self.picarcontrols__set_rw_speed(-speed)
-               self.picarcontrols__set_lw_speed(-speed)
+          elif(self.current_speed < 0):
+               self.picarcontrols__set_rw_speed(-int(self.current_speed))
+               self.picarcontrols__set_lw_speed(-int(self.current_speed))
                self.picarcontrols__backward()
+
 
 
      def picarcontrols__set_lw_speed(self, speed):
@@ -265,6 +277,26 @@ class PiCarFunctions:
           print("turn_straight")
           self.picarcontrols__reset_steer()
 
+     def picarcontrols__accelerate_to_speed(self, current_speed : float, target_speed : int, start_time : int):
+          #start_time doit être en ns
+          delta_speed = 0
+          if (current_speed < target_speed):
+               current_time = time.monotonic_ns()
+               delta_speed = (current_time - start_time) * self.acceleration_ns
+          else:
+               current_time = time.monotonic_ns()
+               delta_speed = (start_time - current_time) * self.acceleration_ns
+          current_speed = current_speed + delta_speed
+          end_time = time.monotonic_ns()
+          return current_speed, end_time
+
+     # Ending
+     def picarcontrols__direct_stop(self):
+          self.picarcontrols__set_rw_speed(0)
+          self.picarcontrols__set_lw_speed(0)
+          self.picarcontrols__steer(0)
+          self.picarcontrols__forward()
+
 
 
 if __name__ == "__main__":
@@ -277,7 +309,7 @@ if __name__ == "__main__":
     method_name = sys.argv[1]  # le nom de la méthode passée en argument
     args = sys.argv[2:]        # arguments supplémentaires
 
-          
+
 
     # Vérifie si la méthode existe dans la classe
     if hasattr(pf, method_name):

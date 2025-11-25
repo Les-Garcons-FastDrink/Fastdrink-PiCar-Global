@@ -4,7 +4,7 @@ import math
 import time
 
 class Line_Follower(object):
-	def __init__(self, address=0x11, references= [131.0, 127.5, 137.0, 129.5, 136.5]):
+	def __init__(self, address=0x11, references= [55.0, 56.5, 63.5, 57.5, 60.0]):
 		self.bus = smbus.SMBus(1)
 		self.address = address
 		self._references = references
@@ -39,7 +39,7 @@ class Line_Follower(object):
 		else:
 			raise IOError("Line follower read error. Please check the wiring.")
 
-	def read_digital(self):	
+	def read_digital(self):
 		lt = self.read_analog()
 		digital_list = []
 		for i in range(0, 5):
@@ -95,7 +95,7 @@ class Line_Follower(object):
 	@property
 	def references(self):
 		return self._references
-	
+
 	@references.setter
 	def references(self, value):
 		self._references = value
