@@ -55,9 +55,13 @@ class PiCarFunctions:
           # SETTINGS
           # ------------------------
           self.distancesensor_treshold = 10
-          self.acceleration_ns = 0.0000000098
+          self.acceleration_ns = 0.0000000098 #Donne 9.8 motor power par seconde
+          self.steer_acceleration_ns = 0.00000009 #Donne 45 degrés en 0.5 s
           self.current_speed = 0
+          self.current_angle = 90
           self.acceleration_start_delta_time = 0
+          self.steer_start_delta_time = 0
+          self.is_first_acceleration = True
           self.is_first_acceleration = True
 
           # ------------------------
@@ -274,7 +278,11 @@ class PiCarFunctions:
           angle = int(angle)
           angle *= -1
           angle += 90
-          self.fw.turn(angle)
+          if(self.is_first_steer):
+               self.steer_start_delta_time = time.monotonic_ns()
+               self.is_first_steer = False
+          self.current_angle, self.steer_start_delta_time = self.picarcontrols__steer_to_target(self.current_angle, angle, self.steer_start_delta_time)
+          self.fw.turn(self.current_angle)
 
      def picarcontrols__steer_get_angle(self):
           return self.fw.get_angle()
@@ -320,6 +328,18 @@ class PiCarFunctions:
           current_speed = current_speed + delta_speed
           end_time = time.monotonic_ns()
           return current_speed, end_time
+     
+     def picarcontrols__steer_to_target(self, current_angle : float, target_angle : int, start_time : int):
+          delta_angle = 0
+          if (current_angle < target_angle):
+               current_time = time.monotonic_ns()
+               delta_angle = (current_time - start_time) * self.steer_acceleration_ns
+          else:
+               current_time = time.monotonic_ns()
+               delta_angle = (start_time - current_time) * self.steer_acceleration_ns
+          current_angle = current_angle + delta_angle
+          end_time = time.monotonic_ns()
+          return current_angle, end_time
 
      # Ending
      def picarcontrols__direct_stop(self):
@@ -332,6 +352,9 @@ class PiCarFunctions:
           # Setting to 0 for acceleration
           self.is_first_acceleration = True
           self.current_speed = 0
+          # Setting to 0 for acceleration
+          self.is_first_steer = True
+          self.current_angle = 0
 
 
 
