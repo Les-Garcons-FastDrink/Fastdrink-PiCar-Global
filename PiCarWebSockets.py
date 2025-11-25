@@ -27,7 +27,7 @@ class PiCarWebSockets:
                         self.pf.picarcontrols__direct_stop()
                     else:
                         self.pf.picarcontrols__steer(steer_angle)
-                        self.pf.picarcontrols__set_wheels_speed(int(50 *engine_power))
+                        self.pf.picarcontrols__set_wheels_speed(int(35 *engine_power))
 
                 except json.JSONDecodeError:
                     print(f'Received non-JSON: {message}')
