@@ -89,7 +89,11 @@ class Back_Wheels(object):
 		self._speed = speed
 		''' Set moving speeds '''
 		self.left_wheel.speed = self._speed
-		self.right_wheel.speed = self._speed + self._engine_offset
+		if self._speed != 0 :
+			self.right_wheel.speed = self._speed + self._engine_offset
+		else :
+			self.right_wheel.speed = self._speed
+		
 		self._debug_('Set speed to %s' % self._speed)
 
 	@property
@@ -132,14 +136,14 @@ class Back_Wheels(object):
 
 	def cali_left(self):
 		''' Reverse the left wheels forward direction in calibration '''
-		self._engine_offset += 1
+		self._engine_offset -= 1
 		if self._engine_offset > 100 :
 			self._engine_offset = 100
 		self.forward()
 
 	def cali_right(self):
 		''' Reverse the right wheels forward direction in calibration '''
-		self._engine_offset -= 1
+		self._engine_offset += 1
 		if self._engine_offset < -100 :
 			self._engine_offset = -100
 		self.forward()
