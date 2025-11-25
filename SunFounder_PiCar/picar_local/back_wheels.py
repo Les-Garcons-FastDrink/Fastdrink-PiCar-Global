@@ -88,7 +88,7 @@ class Back_Wheels(object):
 		self.left_wheel.speed = speed
   
 	def set_rw_speed(self, speed):
-		if self._speed != 0 :
+		if self._speed is not 0 :
 			self.right_wheel.speed = speed + self._engine_offset
 		else :
 			self.right_wheel.speed = speed
