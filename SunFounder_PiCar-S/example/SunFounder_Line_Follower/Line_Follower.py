@@ -3,15 +3,16 @@ import smbus
 import math
 import time
 import filedb
+import ast
 
 class Line_Follower(object):
 	def __init__(self, address=0x11 , db="/home/pi/Documents/SunFounder_PiCar/picar_local/config"):
 		self.bus = smbus.SMBus(1)
 		self.db = filedb.fileDB(db=db)
 		self.address = address
-		self._references = self.db.get('_references', default_value=[0,0,0,0,0])
-		self._references_black = self.db.get('_references_black', default_value=[255,255,255,255,255])
-		self._references_white = self.db.get('_references_white', default_value=[0,0,0,0,0])
+		self._references = ast.literal_eval(self.db.get('_references', default_value="[0,0,0,0,0]"))
+		self._references_black = ast.literal_eval(self.db.get('_references_black', default_value="[255,255,255,255,255]"))
+		self._references_white = ast.literal_eval(self.db.get('_references_white', default_value="[0,0,0,0,0]"))
 
 	def read_raw(self):
 		for i in range(0, 5):
