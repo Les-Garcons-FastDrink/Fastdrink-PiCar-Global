@@ -292,10 +292,15 @@ class PiCarFunctions:
 
      # Ending
      def picarcontrols__direct_stop(self):
+          # Setting motors and steer to 0
           self.picarcontrols__set_rw_speed(0)
           self.picarcontrols__set_lw_speed(0)
           self.picarcontrols__steer(0)
           self.picarcontrols__forward()
+
+          # Setting to 0 for acceleration
+          self.is_first_acceleration = True
+          self.current_speed = 0
 
 
 

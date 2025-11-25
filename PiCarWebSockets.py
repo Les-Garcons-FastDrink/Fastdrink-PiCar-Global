@@ -45,6 +45,7 @@ class PiCarWebSockets:
 
         except websockets.exceptions.ConnectionClosed:
             print("Connection has been lost!")
+            self.pf.picarcontrols__direct_stop()
 
     async def receive_and_send_handler(self):
         async with websockets.serve(self.receive_and_send, "0.0.0.0", 8765):
