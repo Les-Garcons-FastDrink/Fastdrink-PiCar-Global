@@ -2,7 +2,7 @@
 import smbus
 import math
 import time
-from .import filedb
+from filedb import fileDB
 
 class Line_Follower(object):
 	def __init__(self, address=0x11 , db="/home/pi/Documents/SunFounder_PiCar/picar_local/config"):
