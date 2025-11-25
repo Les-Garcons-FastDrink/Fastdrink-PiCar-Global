@@ -9,9 +9,9 @@ class Line_Follower(object):
 		self.bus = smbus.SMBus(1)
 		self.db = filedb.fileDB(db=db)
 		self.address = address
-		self._references = self.db.get('_reference_white', default_value=[0,0,0,0,0])
-		self._references_black = self.db.get('_reference_black', default_value=[255,255,255,255,255])
-		self._references_white = self.db.get('_reference_white', default_value=[0,0,0,0,0])
+		self._references = self.db.get('_references', default_value=[0,0,0,0,0])
+		self._references_black = self.db.get('_references_black', default_value=[255,255,255,255,255])
+		self._references_white = self.db.get('_references_white', default_value=[0,0,0,0,0])
 
 	def read_raw(self):
 		for i in range(0, 5):
