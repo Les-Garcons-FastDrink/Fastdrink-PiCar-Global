@@ -31,11 +31,11 @@ class Back_Wheels(object):
 		''' Init the direction channel and pwm channel '''
 		self.forward_A = True
 		self.forward_B = True
+  
 
 		self.db = filedb.fileDB(db=db)
 
-		self.forward_A = int(self.db.get('forward_A', default_value=1))
-		self.forward_B = int(self.db.get('forward_B', default_value=1))
+		self._engine_offset= int(self.db.get('_engine_offset', default_value=0))
 
 		self.left_wheel = TB6612.Motor(self.Motor_A, offset=self.forward_A)
 		self.right_wheel = TB6612.Motor(self.Motor_B, offset=self.forward_B)
@@ -89,7 +89,7 @@ class Back_Wheels(object):
 		self._speed = speed
 		''' Set moving speeds '''
 		self.left_wheel.speed = self._speed
-		self.right_wheel.speed = self._speed
+		self.right_wheel.speed = self._speed + self._engine_offset
 		self._debug_('Set speed to %s' % self._speed)
 
 	@property
@@ -132,26 +132,25 @@ class Back_Wheels(object):
 
 	def cali_left(self):
 		''' Reverse the left wheels forward direction in calibration '''
-		self.cali_forward_A = (1 + self.cali_forward_A) & 1
-		self.left_wheel.offset = self.cali_forward_A
+		self._engine_offset += 1
+		if self._engine_offset > 100 :
+			self._engine_offset = 100
 		self.forward()
 
 	def cali_right(self):
 		''' Reverse the right wheels forward direction in calibration '''
-		self.cali_forward_B = (1 + self.cali_forward_B) & 1
-		self.right_wheel.offset = self.cali_forward_B
+		self._engine_offset -= 1
+		if self._engine_offset < -100 :
+			self._engine_offset = -100
 		self.forward()
 
 	def cali_ok(self):
 		''' Save the calibration value '''
-		self.forward_A = self.cali_forward_A
-		self.forward_B = self.cali_forward_B
-		self.db.set('forward_A', self.forward_A)
-		self.db.set('forward_B', self.forward_B)
+		self.db.set('_engine_offset', self._engine_offset)
 		self.stop()
 	
 	def get_calibration_values(self):
-		return self.forward_A, self.forward_B
+		return self._engine_offset
 
 def test():
 	import time

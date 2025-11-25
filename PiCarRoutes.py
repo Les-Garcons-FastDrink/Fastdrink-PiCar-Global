@@ -195,10 +195,9 @@ class PiCarRoutes:
           
           @self.picar.route('/picar/engines/get_calibration_values', methods=['GET'])
           def routes__picarcontrols__engines_get_calibration_values():
-                    left_offset, right_offset = self.pf.picarcontrols__engines_get_calibration_values()
+                    offset = self.pf.picarcontrols__engines_get_calibration_values()
                     return jsonify({
-                         "left_offset": left_offset,
-                         "right_offset": right_offset
+                         "offset": offset,
                     })
 
 
