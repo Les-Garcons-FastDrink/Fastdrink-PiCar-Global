@@ -37,8 +37,8 @@ class Back_Wheels(object):
 
 		self._engine_offset= int(self.db.get('_engine_offset', default_value=0))
 
-		self.left_wheel = TB6612.Motor(self.Motor_A, offset=self.forward_A)
-		self.right_wheel = TB6612.Motor(self.Motor_B, offset=self.forward_B)
+		self.right_wheel = TB6612.Motor(self.Motor_A, offset=self.forward_A)
+		self.left_wheel = TB6612.Motor(self.Motor_B, offset=self.forward_B)
 
 		self.pwm = PCA9685.PWM(bus_number=bus_number)
 		def _set_a_pwm(value):
@@ -149,14 +149,12 @@ class Back_Wheels(object):
 		self._engine_offset -= 1
 		if self._engine_offset > 100 :
 			self._engine_offset = 100
-		self.forward()
 
 	def cali_right(self):
 		''' Reverse the right wheels forward direction in calibration '''
 		self._engine_offset += 1
 		if self._engine_offset < -100 :
 			self._engine_offset = -100
-		self.forward()
 
 	def cali_ok(self):
 		''' Save the calibration value '''
