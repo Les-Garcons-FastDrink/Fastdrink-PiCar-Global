@@ -66,7 +66,7 @@ Connectez le Raspberry Pi à votre propre réseau Wi-Fi.
 
 Le Raspberry Pi utilise les identifiants par défaut :
 - **Nom d'utilisateur** : `pi`
-- **Mot de passe** : `raspberry`
+- **Mot de passe** : `garcons`
 
 ### 🖥️ Commandes de connexion
 

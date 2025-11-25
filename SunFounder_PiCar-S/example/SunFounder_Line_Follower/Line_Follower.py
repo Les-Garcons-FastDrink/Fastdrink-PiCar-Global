@@ -43,7 +43,7 @@ class Line_Follower(object):
 		else:
 			raise IOError("Line follower read error. Please check the wiring.")
 
-	def read_digital(self):	
+	def read_digital(self):
 		lt = self.read_analog()
 		digital_list = []
 		for i in range(0, 5):
@@ -127,7 +127,7 @@ class Line_Follower(object):
 	@property
 	def references(self):
 		return self._references
-	
+
 	@references.setter
 	def references(self, value):
 		self._references = value
