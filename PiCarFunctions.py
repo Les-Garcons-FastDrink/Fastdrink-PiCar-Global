@@ -196,10 +196,10 @@ class PiCarFunctions:
 
 
      def picarcontrols__set_lw_speed(self, speed):
-          self.bw.left_wheel.speed = int(speed)
+          self.bw.set_lw_speed(int(speed))
 
      def picarcontrols__set_rw_speed(self, speed):
-          self.bw.right_wheel.speed = int(speed)
+          self.bw.set_rw_speed(int(speed))
 
      def picarcontrols__get_speed(self):
           return self.bw.left_wheel.speed, self.bw.right_wheel.speed
