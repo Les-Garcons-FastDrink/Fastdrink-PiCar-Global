@@ -107,6 +107,14 @@ class PiCarRoutes:
           @self.picar.route('/picar/linedetector/get_reference', methods=['GET'])
           def routes__linedetector__get_reference():
                return self.pf.linedetector__get_reference()
+          
+          @self.picar.route('/picar/linedetector/get_reference_white', methods=['GET'])
+          def routes__linedetector__get_reference_white():
+               return self.pf.linedetector__get_reference_white()
+          
+          @self.picar.route('/picar/linedetector/get_reference_black', methods=['GET'])
+          def routes__linedetector__get_reference_black():
+               return self.pf.linedetector__get_reference_black()
                
 
 

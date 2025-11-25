@@ -56,6 +56,12 @@ class Line_Follower(object):
 	def get_reference(self):
 		return self._references
 
+	def get_reference_white(self):
+		return self._references_white
+
+	def get_reference_black(self):
+		return self._references_black
+
 	def get_average(self, mount):
 		if not isinstance(mount, int):
 			raise ValueError("Mount must be interger")
