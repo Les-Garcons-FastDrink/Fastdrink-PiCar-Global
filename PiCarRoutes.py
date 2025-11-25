@@ -193,7 +193,7 @@ class PiCarRoutes:
                self.pf.picarcontrols__engines_cali_right()
                return jsonify({"status": "ok"}), 200
           
-          @self.picar.route('/picar/engines/engines_get_calibration_values')
+          @self.picar.route('/picar/engines/get_calibration_values', methods=['GET'])
           def routes__picarcontrols__engines_get_calibration_values():
                return self.pf.picarcontrols__engines_get_calibration_values()
 
