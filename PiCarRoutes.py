@@ -76,6 +76,46 @@ class PiCarRoutes:
                t = threading.Thread(target=self.pf.linedetector__test, daemon=True)
                t.start()
                return jsonify({"status": "started"}), 202
+          
+          @self.picar.route('/picar/linedetector/set_reference_white', methods=['PUT'])
+          def routes__linedetector__set_reference_white():
+               try :
+                    self.pf.linedetector__set_reference_white()
+                    return {"responseStatus" : 200}
+               except :
+                    return {"responseStatus" : 500}
+                    
+                    
+          @self.picar.route('/picar/linedetector/set_reference_black', methods=['PUT'])
+          def routes__linedetector__set_reference_black():
+               try :
+                    self.pf.linedetector__set_reference_black()
+                    return {"responseStatus" : 200}
+               except :
+                    return {"responseStatus" : 500}
+
+               
+          @self.picar.route('/picar/linedetector/set_reference', methods=['PUT'])
+          def routes__linedetector__set_reference():
+               try :
+                    self.pf.linedetector__set_reference()
+                    return {"responseStatus" : 200}
+               except :
+                    return {"responseStatus" : 500}
+
+               
+          @self.picar.route('/picar/linedetector/get_reference', methods=['GET'])
+          def routes__linedetector__get_reference():
+               return self.pf.linedetector__get_reference()
+          
+          @self.picar.route('/picar/linedetector/get_reference_white', methods=['GET'])
+          def routes__linedetector__get_reference_white():
+               return self.pf.linedetector__get_reference_white()
+          
+          @self.picar.route('/picar/linedetector/get_reference_black', methods=['GET'])
+          def routes__linedetector__get_reference_black():
+               return self.pf.linedetector__get_reference_black()
+               
 
 
           # ------------------------
@@ -98,6 +138,8 @@ class PiCarRoutes:
                t = threading.Thread(target=self.pf.distancesensor__test, daemon=True)
                t.start()
                return jsonify({"status": "started"}), 202
+          
+
 
 
           # ------------------------
@@ -140,6 +182,24 @@ class PiCarRoutes:
                t = threading.Thread(target=self.pf.picarengine__test, daemon=True)
                t.start()
                return jsonify({"status": "started"}), 202
+          
+          @self.picar.route('/picar/engines/cali_left', methods=['POST'])  
+          def routes__picarcontrols__engines_cali_left():
+               self.pf.picarcontrols__engines_cali_left()
+               return jsonify({"status": "ok"}), 200
+
+          @self.picar.route('/picar/engines/cali_right', methods=['POST'])
+          def routes__picarcontrols__engines_cali_right():
+               self.pf.picarcontrols__engines_cali_right()
+               return jsonify({"status": "ok"}), 200
+          
+          @self.picar.route('/picar/engines/get_calibration_values', methods=['GET'])
+          def routes__picarcontrols__engines_get_calibration_values():
+                    offset = self.pf.picarcontrols__engines_get_calibration_values()
+                    return jsonify({
+                         "offset": offset,
+                    })
+
 
           ### STEERING
           @self.picar.route('/picar/steering/cali_left', methods=['POST'])  

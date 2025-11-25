@@ -2,12 +2,16 @@
 import smbus
 import math
 import time
+import filedb
 
 class Line_Follower(object):
-	def __init__(self, address=0x11, references= [70, 70, 70, 70, 70]):
+	def __init__(self, address=0x11 , db="/home/pi/Documents/SunFounder_PiCar/picar_local/config"):
 		self.bus = smbus.SMBus(1)
+		self.db = filedb.fileDB(db=db)
 		self.address = address
-		self._references = references
+		self._references = self.db.get('_reference_white', default_value=[0,0,0,0,0])
+		self._references_black = self.db.get('_reference_black', default_value=[255,255,255,255,255])
+		self._references_white = self.db.get('_reference_white', default_value=[0,0,0,0,0])
 
 	def read_raw(self):
 		for i in range(0, 5):
@@ -51,6 +55,15 @@ class Line_Follower(object):
 				digital_list.append(-1)
 		return digital_list
 
+	def get_reference(self):
+		return self._references
+
+	def get_reference_white(self):
+		return self._references_white
+
+	def get_reference_black(self):
+		return self._references_black
+
 	def get_average(self, mount):
 		if not isinstance(mount, int):
 			raise ValueError("Mount must be interger")
@@ -91,6 +104,25 @@ class Line_Follower(object):
 			lt_status = self.read_digital()
 			if lt_status[2] == 1:
 				break
+
+	def set_reference(self):
+		for i in range(0, 5):
+			self._references[i] = (self._references_white[i] + self._references_black[i]) / 2
+		print("Middle references =", self._references)
+		self.db.set('_references', self._references)
+		
+	def set_reference_white(self):
+		mount = 100
+		self._references_white = self.get_average(mount)
+		self.db.set('_references_white', self._references_white)
+  
+  
+	def set_reference_black(self):
+		mount = 100
+		self._references_black = self.get_average(mount)
+		self.db.set('_references_black', self._references_black)
+
+		
 
 	@property
 	def references(self):

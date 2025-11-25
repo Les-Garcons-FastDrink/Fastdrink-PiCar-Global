@@ -103,6 +103,24 @@ class PiCarFunctions:
                print(self.linedetector__get_data())
                print('')
                time.sleep(0.5)
+               
+     def linedetector__set_reference_white(self):
+          self.ld.set_reference_white()
+          
+     def linedetector__set_reference_black(self):
+          self.ld.set_reference_black()
+          
+     def linedetector__set_reference(self):
+          self.ld.set_reference()
+          
+     def linedetector__get_reference(self):
+          return self.ld.get_reference()
+          
+     def linedetector__get_reference_black(self):
+          return self.ld.get_reference_black()
+     
+     def linedetector__get_reference_white(self):
+          return self.ld.get_reference_white()
 
      # ------------------------
      # DISTANCE SENSOR
@@ -156,13 +174,13 @@ class PiCarFunctions:
 
      ### ENGINES
      def picarcontrols__forward(self):
-          self.bw.left_wheel.backward()
-          self.bw.right_wheel.backward()
+          self.bw.left_wheel.forward()
+          self.bw.right_wheel.forward()
 
 
      def picarcontrols__backward(self):
-          self.bw.left_wheel.forward()
-          self.bw.right_wheel.forward()
+          self.bw.left_wheel.backward()
+          self.bw.right_wheel.backward()
 
      def picarcontrols__set_wheels_speed(self , speed : int):
           """
@@ -190,16 +208,29 @@ class PiCarFunctions:
 
 
      def picarcontrols__set_lw_speed(self, speed):
-          self.bw.left_wheel.speed = int(speed)
+          self.bw.set_lw_speed(int(speed))
 
      def picarcontrols__set_rw_speed(self, speed):
-          self.bw.right_wheel.speed = int(speed)
+          self.bw.set_rw_speed(int(speed))
 
      def picarcontrols__get_speed(self):
           return self.bw.left_wheel.speed, self.bw.right_wheel.speed
 
      def picarcontrols__stop(self):
           self.picarcontrols__set_wheels_speed(0)
+          
+     def picarcontrols__engines_cali_left(self):
+          self.bw.calibration()
+          self.bw.cali_left()
+          self.bw.cali_ok()
+
+     def picarcontrols__engines_cali_right(self):
+          self.bw.calibration()
+          self.bw.cali_right()
+          self.bw.cali_ok()
+          
+     def picarcontrols__engines_get_calibration_values(self):
+          return self.bw.get_calibration_values()
 
      def picarengine__test(self):
           DELAY = 0.01
