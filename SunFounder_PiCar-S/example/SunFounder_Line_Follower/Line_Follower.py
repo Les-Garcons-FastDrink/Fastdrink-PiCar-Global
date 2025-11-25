@@ -112,7 +112,7 @@ class Line_Follower(object):
 		mount = 100
 		self._references_white = self.get_average(mount)
   
-	def set_reference_white(self):
+	def set_reference_black(self):
 		mount = 100
 		self._references_black = self.get_average(mount)
 		
