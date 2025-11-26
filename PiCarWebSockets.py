@@ -27,8 +27,7 @@ class PiCarWebSockets:
                         self.pf.picarcontrols__direct_stop()
                     else:
                         self.pf.picarcontrols__steer(steer_angle)
-                        self.pf.picarcontrols__set_wheels_speed(int(32*engine_power))
-                        #self.pf.picarcontrols__set_bi_wheels_speed(int(32 *engine_power), steer_angle)
+                        self.pf.picarcontrols__set_bi_wheels_speed(int(35 *engine_power), steer_angle)
 
                 except json.JSONDecodeError:
                     print(f'Received non-JSON: {message}')
@@ -38,7 +37,8 @@ class PiCarWebSockets:
                 # Sending
                 response = {
                     "distance_sensor": self.pf.distancesensor__get_filtered_data(),
-                    "line_sensor": self.pf.linedetector__get_data()
+                    "line_sensor": self.pf.linedetector__get_data(),
+                    "car_speed": int(self.pf.current_speed)
                 }
 
                 await websocket.send(json.dumps(response))

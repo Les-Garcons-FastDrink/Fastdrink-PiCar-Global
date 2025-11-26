@@ -8,11 +8,11 @@ forward_B = 1
 
 # requires a newline after 'forward_B = 0/1'
 
-_references_white = [110, 102, 112, 92, 100]
+_references_white = [102, 96, 110, 100, 113]
 
-_references_black = [41, 43, 25, 70, 63]
+_references_black = [21, 18, 20, 19, 18]
 
-_references = [75.5, 72.5, 68.5, 81.0, 81.5]
+_references = [61.5, 57.0, 65.0, 59.5, 65.5]
 
 _engine_offset = 14
 

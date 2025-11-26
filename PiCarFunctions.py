@@ -55,7 +55,7 @@ class PiCarFunctions:
           # SETTINGS
           # ------------------------
           self.distancesensor_treshold = 10
-          self.acceleration_ns = 0.000000011
+          self.acceleration_ns = 0.000000015
           self.current_speed = 0
           self.acceleration_start_delta_time = 0
           self.is_first_acceleration = True
@@ -103,22 +103,22 @@ class PiCarFunctions:
                print(self.linedetector__get_data())
                print('')
                time.sleep(0.5)
-               
+
      def linedetector__set_reference_white(self):
           self.ld.set_reference_white()
-          
+
      def linedetector__set_reference_black(self):
           self.ld.set_reference_black()
-          
+
      def linedetector__set_reference(self):
           self.ld.set_reference()
-          
+
      def linedetector__get_reference(self):
           return self.ld.get_reference()
-          
+
      def linedetector__get_reference_black(self):
           return self.ld.get_reference_black()
-     
+
      def linedetector__get_reference_white(self):
           return self.ld.get_reference_white()
 
@@ -222,20 +222,21 @@ class PiCarFunctions:
                self.is_first_acceleration = False
           self.current_speed, self.acceleration_start_delta_time = self.picarcontrols__accelerate_to_speed(self.current_speed, speed, self.acceleration_start_delta_time)
 
-          # On obtient entre -39 et 39 pour le steer angle
-          factor_modifier: float = (angle/50)*self.current_speed if 5.0 < abs(angle) else 0.0
-
-          added_speed: int = abs(int(self.current_speed))
-          negate_speed: int = abs(int(self.current_speed-factor_modifier))
-
-          # On applique la nouvelle vitesse au bolide
           if(self.current_speed >= 0):
-               self.picarcontrols__set_rw_speed(added_speed)
-               self.picarcontrols__set_lw_speed(negate_speed)
+               if (angle > 0):
+                    self.picarcontrols__set_rw_speed(int(self.current_speed))
+                    self.picarcontrols__set_lw_speed(int(0.5*self.current_speed))
+               else :
+                    self.picarcontrols__set_rw_speed(int(0.5*self.current_speed))
+                    self.picarcontrols__set_lw_speed(int(self.current_speed))
                self.picarcontrols__forward()
           elif(self.current_speed < 0):
-               self.picarcontrols__set_rw_speed(added_speed)
-               self.picarcontrols__set_lw_speed(negate_speed)
+               if (angle > 0):
+                    self.picarcontrols__set_rw_speed(-int(self.current_speed))
+                    self.picarcontrols__set_lw_speed(-int(0.5*self.current_speed))
+               else :
+                    self.picarcontrols__set_rw_speed(-int(0.5*self.current_speed))
+                    self.picarcontrols__set_lw_speed(-int(self.current_speed))
                self.picarcontrols__backward()
 
      def picarcontrols__set_lw_speed(self, speed):
@@ -249,7 +250,7 @@ class PiCarFunctions:
 
      def picarcontrols__stop(self):
           self.picarcontrols__set_wheels_speed(0)
-          
+
      def picarcontrols__engines_cali_left(self):
           self.bw.calibration()
           self.bw.cali_left()
@@ -259,7 +260,7 @@ class PiCarFunctions:
           self.bw.calibration()
           self.bw.cali_right()
           self.bw.cali_ok()
-          
+
      def picarcontrols__engines_get_calibration_values(self):
           return self.bw.get_calibration_values()
 
