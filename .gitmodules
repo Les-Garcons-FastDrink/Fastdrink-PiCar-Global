@@ -1,0 +1,3 @@
+[submodule "FastDrink-Godot-Headless"]
+	path = FastDrink-Godot-Headless
+	url = https://github.com/Les-Garcons-FastDrink/FastDrink-Godot-Headless.git
