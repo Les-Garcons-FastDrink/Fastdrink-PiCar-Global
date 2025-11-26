@@ -55,7 +55,7 @@ class PiCarFunctions:
           # SETTINGS
           # ------------------------
           self.distancesensor_treshold = 10
-          self.acceleration_ns = 0.0000000098
+          self.acceleration_ns = 0.000000011
           self.current_speed = 0
           self.acceleration_start_delta_time = 0
           self.is_first_acceleration = True
