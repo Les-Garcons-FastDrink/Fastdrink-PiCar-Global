@@ -21,7 +21,7 @@ class PiCarWebSockets:
                     steer_angle = data.get("steer_angle", 0)
                     engine_power = data.get("engine_power", 0)
                     end = data.get("end", 0)
-                    print(f'Received engine_power: {engine_power} and steer_angle: {steer_angle} and end: {end}')
+                    # print(f'Received engine_power: {engine_power} and steer_angle: {steer_angle} and end: {end}')
 
                     if end:
                         self.pf.picarcontrols__direct_stop()
