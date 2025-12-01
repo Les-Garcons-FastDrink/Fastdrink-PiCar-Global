@@ -21,14 +21,12 @@ class PiCarWebSockets:
                     steer_angle = data.get("steer_angle", 0)
                     engine_power = data.get("engine_power", 0)
                     end = data.get("end", 0)
-                    print(f'Received engine_power: {engine_power} and steer_angle: {steer_angle} and end: {end}')
 
                     if end:
                         self.pf.picarcontrols__direct_stop()
                     else:
                         self.pf.picarcontrols__steer(steer_angle)
-                        self.pf.picarcontrols__set_wheels_speed(int(32*engine_power))
-                        #self.pf.picarcontrols__set_bi_wheels_speed(int(32 *engine_power), steer_angle)
+                        self.pf.picarcontrols__set_wheels_speed(int(30*engine_power))
 
                 except json.JSONDecodeError:
                     print(f'Received non-JSON: {message}')
@@ -38,11 +36,11 @@ class PiCarWebSockets:
                 # Sending
                 response = {
                     "distance_sensor": self.pf.distancesensor__get_filtered_data(),
-                    "line_sensor": self.pf.linedetector__get_data()
+                    "line_sensor": self.pf.linedetector__get_data(),
+                    "car_speed": int(self.pf.current_speed)
                 }
 
                 await websocket.send(json.dumps(response))
-                print(f'Sent: {response}')
 
         except websockets.exceptions.ConnectionClosed:
             print("Connection has been lost!")
