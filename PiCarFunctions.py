@@ -177,7 +177,6 @@ class PiCarFunctions:
           self.bw.left_wheel.forward()
           self.bw.right_wheel.forward()
 
-
      def picarcontrols__backward(self):
           self.bw.left_wheel.backward()
           self.bw.right_wheel.backward()
@@ -205,6 +204,181 @@ class PiCarFunctions:
                self.picarcontrols__set_lw_speed(-int(self.current_speed))
                self.picarcontrols__backward()
 
+     def picarcontrols__set_bi_wheels_speed(self, speed: int, angle: int):
+          """
+          Parameter
+          ---------
+               speed : int
+                    Speed of engines. Must be an int from -100 to 100
+               angle : int
+                    Steering angle, in degrees. Must be an integer between -45 and 45 inclusive.
+                    A value of 0 corresponds to the neutral position, where the wheels are perfectly straight.
+          """
+
+          # On détermine la vitesse après accélération
+          if (self.is_first_acceleration):
+               self.acceleration_start_delta_time = time.monotonic_ns()
+               self.is_first_acceleration = False
+          self.current_speed, self.acceleration_start_delta_time = self.picarcontrols__accelerate_to_speed(
+               self.current_speed, speed, self.acceleration_start_delta_time)
+
+          if abs(angle) < 8:
+               if self.current_speed > 0:
+                    self.picarcontrols__set_rw_speed(abs(int(self.current_speed)))
+                    self.picarcontrols__set_lw_speed(int(self.current_speed))
+                    self.bw.forward()
+                    return
+               else:
+                    self.picarcontrols__set_rw_speed(-int(self.current_speed))
+                    self.picarcontrols__set_lw_speed(-int(self.current_speed))
+                    self.bw.backward()
+                    return
+
+          limit_angle = 40
+          factor = 1 - abs((3/2) * angle / limit_angle)
+          factored_speed = factor * self.current_speed
+
+          # Si on avance
+          if self.current_speed >= 0:
+               if angle < 0:
+                    # Pour tourner vers la gauche
+                    self.picarcontrols__set_rw_speed(int(self.current_speed))
+                    self.picarcontrols__set_lw_speed(int(factored_speed))
+
+                    # Appliquer les vitesses
+                    self.bw.right_wheel.forward()
+                    self.bw.left_wheel.forward() if (factored_speed >= 0) else self.bw.left_wheel.backward()
+               else:
+                    # Pour tourner vers la droite
+                    self.picarcontrols__set_rw_speed(int(factored_speed))
+                    self.picarcontrols__set_lw_speed(int(self.current_speed))
+
+                    # Appliquer les vitesses
+                    self.bw.right_wheel.forward() if (factored_speed >= 0) else self.bw.right_wheel.backward()
+                    self.bw.left_wheel.forward()
+
+          # Si on recule
+          elif self.current_speed < 0:
+               if angle < 0:
+                    # Pour tourner vers la gauche
+                    self.picarcontrols__set_rw_speed(-int(self.current_speed))
+                    self.picarcontrols__set_lw_speed(-int(factored_speed))
+
+                    # Appliquer les vitesses
+                    self.bw.right_wheel.backward()
+                    self.bw.left_wheel.backward() if (factored_speed >= 0) else self.bw.left_wheel.forward()
+               else:
+                    # Pour tourner vers la droite
+                    self.picarcontrols__set_rw_speed(-int(factored_speed))
+                    self.picarcontrols__set_lw_speed(-int(self.current_speed))
+
+                    # Appliquer les vitesses
+                    self.bw.right_wheel.backward() if (factored_speed >= 0) else self.bw.right_wheel.forward()
+                    self.bw.left_wheel.backward()
+
+
+
+
+     def picarcontrols__set_bi_wheels_speed(self , speed : int, angle : int):
+          """
+          Parameter
+          ---------
+               speed : int
+                    Speed of engines. Must be an int from -100 to 100
+               angle : int
+                    Steering angle, in degrees. Must be an integer between -45 and 45 inclusive.
+                    A value of 0 corresponds to the neutral position, where the wheels are perfectly straight.
+          """
+
+          # On détermine la vitesse après accélération
+          if(self.is_first_acceleration):
+               self.acceleration_start_delta_time = time.monotonic_ns()
+               self.is_first_acceleration = False
+          self.current_speed, self.acceleration_start_delta_time = self.picarcontrols__accelerate_to_speed(self.current_speed, speed, self.acceleration_start_delta_time)
+
+          if(7.5 < abs(angle)):
+               # On obtient entre -39 et 39 pour le steer angle
+               normal_speed: int = abs(int(self.current_speed))
+               negated_speed: float = -(abs(50-angle) / 50) * self.current_speed if 7.5 < abs(angle) else 0.0
+
+               self.picarcontrols__set_rw_speed(normal_speed if angle > 0 else negated_speed)
+               self.picarcontrols__set_lw_speed(negated_speed if angle > 0 else normal_speed)
+
+          else:
+               self.picarcontrols__set_rw_speed(abs(int(self.current_speed)))
+               self.picarcontrols__set_lw_speed(abs(int(self.current_speed)))
+
+          # On applique la nouvelle vitesse au bolide
+          self.picarcontrols__forward() if (self.current_speed >= 0) else self.picarcontrols__backward()
+
+     def picarcontrols__set_bi_wheels_speed_old(self, speed: int, angle: int):
+          """
+          Parameter
+          ---------
+               speed : int
+                    Speed of engines. Must be an int from -100 to 100
+               angle : int
+                    Steering angle, in degrees. Must be an integer between -45 and 45 inclusive.
+                    A value of 0 corresponds to the neutral position, where the wheels are perfectly straight.
+          """
+
+          # On détermine la vitesse après accélération
+          if (self.is_first_acceleration):
+               self.acceleration_start_delta_time = time.monotonic_ns()
+               self.is_first_acceleration = False
+          self.current_speed, self.acceleration_start_delta_time = self.picarcontrols__accelerate_to_speed(
+               self.current_speed, speed, self.acceleration_start_delta_time)
+
+          if (7.5 < abs(angle)):
+               # On obtient entre -39 et 39 pour le steer angle
+               # speed_modified: float = -(abs(50-angle) / 50) * self.current_speed if 7.5 < abs(angle) else 0.0
+               added_speed: int = abs(int(self.current_speed))
+               negated_speed: float = -(abs(50 - angle) / 50) * self.current_speed if 7.5 < abs(angle) else 0.0
+               # negated_speed: int = abs(int(speed_modified))
+
+               self.picarcontrols__set_rw_speed(added_speed if angle > 0 else negated_speed)
+               self.picarcontrols__set_lw_speed(negated_speed if angle > 0 else added_speed)
+
+          else:
+               self.picarcontrols__set_rw_speed(abs(int(self.current_speed)))
+               self.picarcontrols__set_lw_speed(abs(int(self.current_speed)))
+
+          # On applique la nouvelle vitesse au bolide
+          self.picarcontrols__forward() if (self.current_speed >= 0) else self.picarcontrols__backward()
+
+     def picarcontrols__set_bi_wheels_speed_2(self, speed: int, angle: int):
+          """
+          Parameter
+          ---------
+               speed : int
+                    Speed of engines. Must be an int from -100 to 100
+               angle : int
+                    Steering angle, in degrees. Must be an integer between -45 and 45 inclusive.
+                    A value of 0 corresponds to the neutral position, where the wheels are perfectly straight.
+          """
+
+          # On détermine la vitesse après accélération
+          if (self.is_first_acceleration):
+               self.acceleration_start_delta_time = time.monotonic_ns()
+               self.is_first_acceleration = False
+          self.current_speed, self.acceleration_start_delta_time = self.picarcontrols__accelerate_to_speed(
+               self.current_speed, speed, self.acceleration_start_delta_time)
+
+          # On obtient entre -39 et 39 pour le steer angle
+          factor_modifier: float = (angle / 40) * self.current_speed if 5.0 < abs(angle) else 0.0
+
+          added_speed: int = abs(int(self.current_speed + factor_modifier))
+          negate_speed: int = abs(int(self.current_speed - factor_modifier))
+
+          # On applique la nouvelle vitesse au bolide
+          if (self.current_speed >= 0):
+               self.picarcontrols__set_rw_speed(added_speed)
+               self.picarcontrols__set_lw_speed(negate_speed)
+               self.picarcontrols__forward()
+          elif (self.current_speed < 0):
+               self.picarcontrols__set_rw_speed(negate_speed)
+               self.picarcontrols__set_lw_speed(added_speed)
+               self.picarcontrols__backward()
 
 
      def picarcontrols__set_lw_speed(self, speed):
