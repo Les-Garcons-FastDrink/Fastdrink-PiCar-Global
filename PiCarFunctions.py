@@ -243,7 +243,7 @@ class PiCarFunctions:
 
           # If the angle is over the threshold and is going foward
           
-          factor = self.biwheels_factor * abs(abs(angle)-self.biwheels_threshold_activation) / self.config["CONF_MAX_STEER"]
+          factor = self.biwheels_factor * abs(abs(angle)-self.biwheels_threshold_activation) / self.conf["CONF_MAX_STEER"]
           inner_speed = self.current_speed * min(abs(1 - factor), self.biwheels_inner_wheel_limit)
           outer_speed = self.current_speed * (1 + factor)
 
