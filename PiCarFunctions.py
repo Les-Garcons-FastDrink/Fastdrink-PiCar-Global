@@ -59,6 +59,9 @@ class PiCarFunctions:
           self.distancesensor_threshold = self.conf["CONF_DISTANCE_THRESHOLD"]
           self.acceleration_ns = self.conf["CONF_ACCELERATION_NS"]
           self.max_steer_angle = self.conf["CONF_MAX_STEER"]
+          self.biwheels_threshold_activation = self.config["CONF_THRESHOLD_BIWHEELS_ACTIVATION"]
+          self.biwheels_factor = self.config["CONF_BIWHEELS_FACTOR_F1"]/self.config["CONF_BIWHEELS_FACTOR_F2"]
+          self.biwheels_inner_wheel_limit = self.config["CONF_BIWHEELS_POWER_MIN_INNER_WHEEL"]
           
           self.current_speed = 0
           self.current_time = 0
@@ -211,49 +214,53 @@ class PiCarFunctions:
                self.picarcontrols__set_lw_speed(-self.current_speed)
                self.picarcontrols__backward()
 
+
      def picarcontrols__set_bi_wheels_speed(self, target_speed: int, angle: int):
-               """
-               Parameter
-               ---------
-                    speed : int
-                         Speed of engines. Must be an int from -100 to 100
-                    angle : int
-                         Steering angle, in degrees. Must be an integer between -45 and 45 inclusive.
-                         A value of 0 corresponds to the neutral position, where the wheels are perfectly straight.
-               """
+          """
+          Parameter
+          ---------
+               speed : int
+                    Speed of engines. Must be an int from -100 to 100
+               angle : int
+                    Steering angle, in degrees. Must be an integer between -45 and 45 inclusive.
+                    A value of 0 corresponds to the neutral position, where the wheels are perfectly straight.
+          """
 
-               # On détermine la vitesse après accélération
-               if (self.is_first_acceleration):
-                    self.current_time = time.monotonic_ns()
-                    self.is_first_acceleration = False
-               self.picarcontrols__accelerate_to_speed(target_speed)
+          # On détermine la vitesse après accélération
+          if (self.is_first_acceleration):
+               self.current_time = time.monotonic_ns()
+               self.is_first_acceleration = False
+          self.picarcontrols__accelerate_to_speed(target_speed)
 
-               speed_int = int(self.current_speed)
-               self.max_steer_angle = 40
-               factor = 1 - abs((3/2) * angle / self.max_steer_angle)
 
-               if (angle >= 0):
-                    # On applique les vitesses
-                    self.picarcontrols__set_rw_speed(abs(speed_int))
-                    self.picarcontrols__set_lw_speed(abs(factor*speed_int))
+          # If the angle is under the threshold or is in recovery
+          if abs(angle) < self.biwheels_threshold_activation or self.current_speed < 0:
+               self.picarcontrols__set_rw_speed(int(self.current_speed))
+               self.picarcontrols__set_lw_speed(int(self.current_speed))
 
-                    # On applique en avant ou en arrière
-                    self.bw.left_wheel.forward()
-                    if (factor > 0):
-                         self.bw.right_wheel.forward()
-                    else:
-                         self.bw.right_wheel.backward()
-               elif (angle < 0):
-                    # On applique les vitesses
-                    self.picarcontrols__set_lw_speed(abs(speed_int))
-                    self.picarcontrols__set_rw_speed(abs(factor*speed_int))
+               self.picarcontrols__forward() if self.current_speed >= 0 else self.picarcontrols__backward()
+               return
 
-                    # On applique en avant ou en arrière
-                    self.bw.left_wheel.forward()
-                    if (factor > 0):
-                         self.bw.right_wheel.forward()
-                    else:
-                         self.bw.right_wheel.backward()
+          # If the angle is over the threshold and is going foward
+          
+          factor = self.biwheels_factor * abs(abs(angle)-self.biwheels_threshold_activation) / self.config["CONF_MAX_STEER"]
+          inner_speed = self.current_speed * min(abs(1 - factor), self.biwheels_inner_wheel_limit)
+          outer_speed = self.current_speed * (1 + factor)
+
+          #if self.current_speed >= 0:
+          # Pour tourner vers la gauche ou vers la droite
+          rw, lw = (inner_speed, outer_speed) if angle < 0 else (outer_speed, inner_speed)
+
+          # For recovery (backward)
+          # rw, lw = (outer_speed, inner_speed) if angle < 0 else (inner_speed, outer_speed)
+
+          # Set wheels speed
+          self.picarcontrols__set_rw_speed(abs(rw))
+          self.picarcontrols__set_lw_speed(abs(lw))
+
+          # Apply direction of wheels
+          self.bw.left_wheel.forward() if (lw >= 0) else self.bw.left_wheel.backward()
+          self.bw.right_wheel.forward() if (rw >= 0) else self.bw.right_wheel.backward() 
 
 
      def picarcontrols__set_lw_speed(self, speed):
