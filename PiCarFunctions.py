@@ -21,7 +21,7 @@ import time
 
 class PiCarFunctions:
 
-     def __init__(self, config_path = "./TO_CHANGE"):
+     def __init__(self, config_path = "./FastDrink-Godot-Headless/config.ini"):
           # ------------------------
           # COMPONENTS
           # ------------------------
@@ -56,7 +56,7 @@ class PiCarFunctions:
           # ------------------------
           # SETTINGS
           # ------------------------
-          self.distancesensor_treshold = self.conf["CONF_DISTANCE_THRESHHOLD"]
+          self.distancesensor_threshold = self.conf["CONF_DISTANCE_THRESHOLD"]
           self.acceleration_ns = self.conf["CONF_ACCELERATION_NS"]
           self.max_steer_angle = self.conf["CONF_MAX_STEER"]
           
@@ -167,13 +167,13 @@ class PiCarFunctions:
 
 
      def distancesensor__is_obstacle_detected(self):
-          return self.distancesensor__get_filtered_data() < self.distancesensor_treshold
+          return self.distancesensor__get_filtered_data() < self.distancesensor_threshold
 
 
      def distancesensor__test(self):
           while True:
                distance = self.ds.get_distance()
-               status = self.ds.less_than(self.distancesensor_treshold)
+               status = self.ds.less_than(self.distancesensor_threshold)
                if distance != -1:
                     print('distance', distance, 'cm')
                time.sleep(0.1)

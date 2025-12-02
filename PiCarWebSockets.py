@@ -5,7 +5,7 @@ from PiCarFunctions import PiCarFunctions
 from IniConfig import IniConfig
 
 class PiCarWebSockets:
-    def __init__(self, config_path = "./TO_CHANGE"):
+    def __init__(self, config_path = "./FastDrink-Godot-Headless/config.ini"):
         self.pf = PiCarFunctions()
         self.pf.picarcontrols__set_lw_speed(0)
         self.pf.picarcontrols__set_rw_speed(0)
