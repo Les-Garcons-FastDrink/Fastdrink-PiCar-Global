@@ -59,9 +59,9 @@ class PiCarFunctions:
           self.distancesensor_threshold = self.conf["CONF_DISTANCE_THRESHOLD"]
           self.acceleration_ns = self.conf["CONF_ACCELERATION_NS"]
           self.max_steer_angle = self.conf["CONF_MAX_STEER"]
-          self.biwheels_threshold_activation = self.config["CONF_THRESHOLD_BIWHEELS_ACTIVATION"]
-          self.biwheels_factor = self.config["CONF_BIWHEELS_FACTOR_F1"]/self.config["CONF_BIWHEELS_FACTOR_F2"]
-          self.biwheels_inner_wheel_limit = self.config["CONF_BIWHEELS_POWER_MIN_INNER_WHEEL"]
+          self.biwheels_threshold_activation = self.conf["CONF_THRESHOLD_BIWHEELS_ACTIVATION"]
+          self.biwheels_factor = self.conf["CONF_BIWHEELS_FACTOR_F1"]/self.conf["CONF_BIWHEELS_FACTOR_F2"]
+          self.biwheels_inner_wheel_limit = self.conf["CONF_BIWHEELS_POWER_MIN_INNER_WHEEL"]
           
           self.current_speed = 0
           self.current_time = 0
