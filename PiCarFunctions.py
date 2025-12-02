@@ -64,12 +64,6 @@ class PiCarFunctions:
           self.current_time = 0
           self.is_first_acceleration = True
           
-          # self.distancesensor_treshold = 10
-          # self.acceleration_ns = 0.000000015
-          # self.current_speed = 0
-          # self.current_time = 0
-          # self.minimum_speed = 5
-          # self.is_first_acceleration = True
 
           # ------------------------
           # THREADING
@@ -261,45 +255,6 @@ class PiCarFunctions:
                     else:
                          self.bw.right_wheel.backward()
 
-               # Si on avance
-               # if (self.current_speed >= 0):
-               #      if (angle > 0):
-               #           # Pour tourner vers la gauche
-               #           self.picarcontrols__set_rw_speed(int(self.current_speed))
-               #           self.picarcontrols__set_lw_speed(int(factored_speed))
-
-               #           # Appliquer les vitesses
-               #           self.bw.right_wheel.forward()
-               #           self.bw.left_wheel.forward() if (factored_speed >= 0) else self.bw.left_wheel.backward()
-               #      else:
-               #           # Pour tourner vers la droite
-               #           self.picarcontrols__set_rw_speed(int(factored_speed))
-               #           self.picarcontrols__set_lw_speed(int(self.current_speed))
-
-               #           # Appliquer les vitesses
-               #           self.bw.right_wheel.forward() if (factored_speed >= 0) else self.bw.right_wheel.backward()
-               #           self.bw.left_wheel.forward()
-
-               #      # self.picarcontrols__forward()
-               # # Si on recule
-               # elif (self.current_speed < 0):
-               #      if (angle > 0):
-               #           # Pour tourner vers la gauche
-               #           self.picarcontrols__set_rw_speed(-int(self.current_speed))
-               #           self.picarcontrols__set_lw_speed(-int(factored_speed))
-
-               #           # Appliquer les vitesses
-               #           self.bw.right_wheel.backward()
-               #           self.bw.left_wheel.backward() if (factored_speed >= 0) else self.bw.left_wheel.forward()
-               #      else:
-               #           # Pour tourner vers la droite
-               #           self.picarcontrols__set_rw_speed(-int(factored_speed))
-               #           self.picarcontrols__set_lw_speed(-int(self.current_speed))
-
-               #           # Appliquer les vitesses
-               #           self.bw.right_wheel.backward() if (factored_speed >= 0) else self.bw.right_wheel.forward()
-               #           self.bw.left_wheel.backward()
-               #      # self.picarcontrols__backward()
 
      def picarcontrols__set_lw_speed(self, speed):
           self.bw.set_lw_speed(int(speed))
