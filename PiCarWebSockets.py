@@ -10,6 +10,9 @@ class PiCarWebSockets:
         self.pf.picarcontrols__set_lw_speed(0)
         self.pf.picarcontrols__set_rw_speed(0)
         self.conf = IniConfig(config_path)
+        self.conf_max_speed_limit = self.conf["MAX_SPEED_LIMIT"]
+        self.conf_use_biwheels = self.conf["CONF_USE_BIWHEELS"]
+        
 
     async def receive_and_send(self, websocket):
         print("Connection has been made!")
@@ -28,8 +31,13 @@ class PiCarWebSockets:
                         self.pf.picarcontrols__direct_stop()
                     else:
                         self.pf.picarcontrols__steer(steer_angle)
-                        self.pf.picarcontrols__set_wheels_speed(int(self.conf["CONF_MAX_SPEED_LIMIT"]*engine_power))
-
+                        
+                        engine_power = int(self.conf_max_speed_limit*engine_power)
+                        if not self.conf_use_biwheels :
+                            self.pf.picarcontrols__set_wheels_speed(engine_power)
+                        else :
+                            self.pf.picarcontrols__set_bi_wheels_speed(engine_power, steer_angle)
+                            
                 except json.JSONDecodeError:
                     print(f'Received non-JSON: {message}')
                 except websockets.exceptions.ConnectionClosed:
