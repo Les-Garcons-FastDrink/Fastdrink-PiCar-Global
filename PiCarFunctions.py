@@ -6,19 +6,22 @@ sys.path.append(os.path.abspath("./SunFounder_PiCar-S/example"))
 sys.path.append(os.path.abspath("./SunFounder_PiCar"))
 
 from SunFounder_Line_Follower import Line_Follower
-from ultrasonic_module import Ultrasonic_Sensor
 from picar_local import front_wheels, back_wheels
-import numpy as np
+from ultrasonic_module import Ultrasonic_Sensor
+from IniConfig import IniConfig
+
+
 from scipy import signal
-print(front_wheels.__file__)
-import time
+import numpy as np
+
 import picar_local
 import threading
+import time
 
 
 class PiCarFunctions:
 
-     def __init__(self):
+     def __init__(self, config_path = "./TO_CHANGE"):
           # ------------------------
           # COMPONENTS
           # ------------------------
@@ -27,6 +30,8 @@ class PiCarFunctions:
           self.ld = Line_Follower.Line_Follower()
           self.ds = Ultrasonic_Sensor(17)
 
+          self.conf = IniConfig(config_path)
+          
           # ------------------------
           # SETUP
           # ------------------------
@@ -51,12 +56,20 @@ class PiCarFunctions:
           # ------------------------
           # SETTINGS
           # ------------------------
-          self.distancesensor_treshold = 10
-          self.acceleration_ns = 0.000000015
+          self.distancesensor_treshold = self.conf["CONF_DISTANCE_THRESHHOLD"]
+          self.acceleration_ns = self.conf["CONF_ACCELERATION_NS"]
+          self.max_steer_angle = self.conf["CONF_MAX_STEER"]
+          
           self.current_speed = 0
           self.current_time = 0
-          self.minimum_speed = 5
           self.is_first_acceleration = True
+          
+          # self.distancesensor_treshold = 10
+          # self.acceleration_ns = 0.000000015
+          # self.current_speed = 0
+          # self.current_time = 0
+          # self.minimum_speed = 5
+          # self.is_first_acceleration = True
 
           # ------------------------
           # THREADING
@@ -222,8 +235,8 @@ class PiCarFunctions:
                self.picarcontrols__accelerate_to_speed(target_speed)
 
                speed_int = int(self.current_speed)
-               limit_angle = 40
-               factor = 1 - abs((3/2) * angle / limit_angle)
+               self.max_steer_angle = 40
+               factor = 1 - abs((3/2) * angle / self.max_steer_angle)
 
                if (angle >= 0):
                     # On applique les vitesses

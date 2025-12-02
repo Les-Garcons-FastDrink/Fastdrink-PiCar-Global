@@ -2,12 +2,14 @@ import asyncio
 import websockets
 import json
 from PiCarFunctions import PiCarFunctions
+from IniConfig import IniConfig
 
 class PiCarWebSockets:
-    def __init__(self):
+    def __init__(self, config_path = "./TO_CHANGE"):
         self.pf = PiCarFunctions()
         self.pf.picarcontrols__set_lw_speed(0)
         self.pf.picarcontrols__set_rw_speed(0)
+        self.config = IniConfig(config_path)
 
     async def receive_and_send(self, websocket):
         print("Connection has been made!")
@@ -26,7 +28,7 @@ class PiCarWebSockets:
                         self.pf.picarcontrols__direct_stop()
                     else:
                         self.pf.picarcontrols__steer(steer_angle)
-                        self.pf.picarcontrols__set_wheels_speed(int(30*engine_power))
+                        self.pf.picarcontrols__set_wheels_speed(int(self.conf["MAX_SPEED_LIMIT"]*engine_power))
 
                 except json.JSONDecodeError:
                     print(f'Received non-JSON: {message}')
