@@ -6,19 +6,22 @@ sys.path.append(os.path.abspath("./SunFounder_PiCar-S/example"))
 sys.path.append(os.path.abspath("./SunFounder_PiCar"))
 
 from SunFounder_Line_Follower import Line_Follower
-from ultrasonic_module import Ultrasonic_Sensor
 from picar_local import front_wheels, back_wheels
-import numpy as np
+from ultrasonic_module import Ultrasonic_Sensor
+from IniConfig import IniConfig
+
+
 from scipy import signal
-print(front_wheels.__file__)
-import time
+import numpy as np
+
 import picar_local
 import threading
+import time
 
 
 class PiCarFunctions:
 
-     def __init__(self):
+     def __init__(self, config_path = "./FastDrink-Godot-Headless/config.ini"):
           # ------------------------
           # COMPONENTS
           # ------------------------
@@ -27,6 +30,8 @@ class PiCarFunctions:
           self.ld = Line_Follower.Line_Follower()
           self.ds = Ultrasonic_Sensor(17)
 
+          self.conf = IniConfig(config_path)
+          
           # ------------------------
           # SETUP
           # ------------------------
@@ -51,12 +56,14 @@ class PiCarFunctions:
           # ------------------------
           # SETTINGS
           # ------------------------
-          self.distancesensor_treshold = 10
-          self.acceleration_ns = 0.000000015
+          self.distancesensor_threshold = self.conf["CONF_DISTANCE_THRESHOLD"]
+          self.acceleration_ns = self.conf["CONF_ACCELERATION_NS"]
+          self.max_steer_angle = self.conf["CONF_MAX_STEER"]
+          
           self.current_speed = 0
           self.current_time = 0
-          self.minimum_speed = 5
           self.is_first_acceleration = True
+          
 
           # ------------------------
           # THREADING
@@ -154,13 +161,13 @@ class PiCarFunctions:
 
 
      def distancesensor__is_obstacle_detected(self):
-          return self.distancesensor__get_filtered_data() < self.distancesensor_treshold
+          return self.distancesensor__get_filtered_data() < self.distancesensor_threshold
 
 
      def distancesensor__test(self):
           while True:
                distance = self.ds.get_distance()
-               status = self.ds.less_than(self.distancesensor_treshold)
+               status = self.ds.less_than(self.distancesensor_threshold)
                if distance != -1:
                     print('distance', distance, 'cm')
                time.sleep(0.1)
@@ -222,8 +229,8 @@ class PiCarFunctions:
                self.picarcontrols__accelerate_to_speed(target_speed)
 
                speed_int = int(self.current_speed)
-               limit_angle = 40
-               factor = 1 - abs((3/2) * angle / limit_angle)
+               self.max_steer_angle = 40
+               factor = 1 - abs((3/2) * angle / self.max_steer_angle)
 
                if (angle >= 0):
                     # On applique les vitesses
@@ -248,45 +255,6 @@ class PiCarFunctions:
                     else:
                          self.bw.right_wheel.backward()
 
-               # Si on avance
-               # if (self.current_speed >= 0):
-               #      if (angle > 0):
-               #           # Pour tourner vers la gauche
-               #           self.picarcontrols__set_rw_speed(int(self.current_speed))
-               #           self.picarcontrols__set_lw_speed(int(factored_speed))
-
-               #           # Appliquer les vitesses
-               #           self.bw.right_wheel.forward()
-               #           self.bw.left_wheel.forward() if (factored_speed >= 0) else self.bw.left_wheel.backward()
-               #      else:
-               #           # Pour tourner vers la droite
-               #           self.picarcontrols__set_rw_speed(int(factored_speed))
-               #           self.picarcontrols__set_lw_speed(int(self.current_speed))
-
-               #           # Appliquer les vitesses
-               #           self.bw.right_wheel.forward() if (factored_speed >= 0) else self.bw.right_wheel.backward()
-               #           self.bw.left_wheel.forward()
-
-               #      # self.picarcontrols__forward()
-               # # Si on recule
-               # elif (self.current_speed < 0):
-               #      if (angle > 0):
-               #           # Pour tourner vers la gauche
-               #           self.picarcontrols__set_rw_speed(-int(self.current_speed))
-               #           self.picarcontrols__set_lw_speed(-int(factored_speed))
-
-               #           # Appliquer les vitesses
-               #           self.bw.right_wheel.backward()
-               #           self.bw.left_wheel.backward() if (factored_speed >= 0) else self.bw.left_wheel.forward()
-               #      else:
-               #           # Pour tourner vers la droite
-               #           self.picarcontrols__set_rw_speed(-int(factored_speed))
-               #           self.picarcontrols__set_lw_speed(-int(self.current_speed))
-
-               #           # Appliquer les vitesses
-               #           self.bw.right_wheel.backward() if (factored_speed >= 0) else self.bw.right_wheel.forward()
-               #           self.bw.left_wheel.backward()
-               #      # self.picarcontrols__backward()
 
      def picarcontrols__set_lw_speed(self, speed):
           self.bw.set_lw_speed(int(speed))
