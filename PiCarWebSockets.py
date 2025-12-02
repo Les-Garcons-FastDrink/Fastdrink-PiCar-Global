@@ -10,7 +10,7 @@ class PiCarWebSockets:
         self.pf.picarcontrols__set_lw_speed(0)
         self.pf.picarcontrols__set_rw_speed(0)
         self.conf = IniConfig(config_path)
-        self.conf_max_speed_limit = self.conf["MAX_SPEED_LIMIT"]
+        self.conf_max_speed_limit = self.conf["CONF_MAX_SPEED_LIMIT"]
         self.conf_use_biwheels = self.conf["CONF_USE_BIWHEELS"]
         
 
