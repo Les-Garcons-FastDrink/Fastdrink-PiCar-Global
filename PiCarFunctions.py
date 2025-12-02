@@ -369,34 +369,6 @@ class PiCarFunctions:
                delta_speed = -self.acceleration_ns * delta_time
           self.current_speed = self.current_speed + delta_speed
 
-          # Enlever l'attente de l'accélération (avant positif)
-          # target_speed > 10 (on veut accélérer à plus de 10)
-          # self.current_speed < 10 (on veut que quand le current_speed est inférieur à 10 de motor power, on mette engine à 10)
-          # delta_speed > 0 (on veut que ça n'arrive que lors de l'accélération)
-          if target_speed > self.minimum_speed and self.current_speed < self.minimum_speed and delta_speed > 0:
-               self.current_speed = self.minimum_speed
-
-          # Enlever l'attente de l'accélération (arrière négatif)
-          # target_speed < -10 (on veut accélérer en arrière à moins de -10)
-          # self.current_speed > -10 (on veut que quand le current_speed est supérieur à -10, on mette engine à -10)
-          # delta_speed < 0 (on veut que ça n'arrive que lors de l'accélération en arrière)
-          if target_speed < -self.minimum_speed and self.current_speed > -self.minimum_speed and delta_speed < 0:
-               self.current_speed = -self.minimum_speed
-
-          # Enlever l'attente de décélération (vers 0 depuis le positif)
-          # target_speed == 0 (on veut décélérer à 0)
-          # self.current_speed < 10 (on veut que quand le current_speed est inférieur à 10 de motor power, on mette engine à 0)
-          # delta_speed < 0 (on veut que ça n'arrive que lors de la décélération)
-          if target_speed == 0 and 0 < self.current_speed < self.minimum_speed and delta_speed < 0:
-               self.current_speed = 0
-
-          # Enlever l'attente de décélération (vers 0 depuis le négatif)
-          # target_speed == 0 (on veut décélérer à 0)
-          # self.current_speed > -10 (on veut que quand le current_speed est supérieur à -10, on mette engine à 0)
-          # delta_speed > 0 (on veut que ça n'arrive que lors de la décélération depuis l'arrière)
-          if target_speed == 0 and -self.minimum_speed < self.current_speed < 0 and delta_speed > 0:
-               self.current_speed = 0
-
           self.current_time = time.monotonic_ns()
 
      # Ending
