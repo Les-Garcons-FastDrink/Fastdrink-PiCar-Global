@@ -235,8 +235,8 @@ class PiCarFunctions:
 
           # If the angle is under the threshold or is in recovery
           if abs(angle) < self.biwheels_threshold_activation or self.current_speed < 0:
-               self.picarcontrols__set_rw_speed(int(self.current_speed))
-               self.picarcontrols__set_lw_speed(int(self.current_speed))
+               self.picarcontrols__set_rw_speed(int(abs(self.current_speed)))
+               self.picarcontrols__set_lw_speed(int(abs(self.current_speed)))
 
                self.picarcontrols__forward() if self.current_speed >= 0 else self.picarcontrols__backward()
                return
