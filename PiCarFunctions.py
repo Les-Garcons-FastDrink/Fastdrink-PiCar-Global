@@ -246,11 +246,11 @@ class PiCarFunctions:
           inner_speed = self.current_speed
           outer_speed = self.current_speed
 
-          if abs(angle) < self.biwheels_inner_threshold_activation:
+          if abs(angle) > self.biwheels_inner_threshold_activation:
                inner_factor = self.biwheels_factor * abs(abs(angle) - self.biwheels_inner_threshold_activation) / self.conf["CONF_MAX_STEER"]
                inner_speed = self.current_speed * min(abs(1 - inner_factor), self.biwheels_inner_wheel_limit)
 
-          if abs(angle) < self.biwheels_outer_threshold_activation:
+          if abs(angle) > self.biwheels_outer_threshold_activation:
                outer_factor = self.biwheels_factor * abs(abs(angle) - self.biwheels_outer_threshold_activation) / self.conf["CONF_MAX_STEER"]
                outer_speed = self.current_speed * (1 + outer_factor)
 
