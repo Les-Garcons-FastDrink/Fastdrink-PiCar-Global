@@ -59,7 +59,8 @@ class PiCarFunctions:
           self.distancesensor_threshold = self.conf["CONF_DISTANCE_THRESHOLD"]
           self.acceleration_ns = self.conf["CONF_ACCELERATION_NS"]
           self.max_steer_angle = self.conf["CONF_MAX_STEER"]
-          self.biwheels_threshold_activation = self.conf["CONF_THRESHOLD_BIWHEELS_ACTIVATION"]
+          self.biwheels_inner_threshold_activation = self.conf["CONF_THRESHOLD_INNER_BIWHEELS_ACTIVATION"]
+          self.biwheels_outer_threshold_activation = self.conf["CONF_THRESHOLD_OUTER_BIWHEELS_ACTIVATION"]
           self.biwheels_factor = self.conf["CONF_BIWHEELS_FACTOR_F1"]/self.conf["CONF_BIWHEELS_FACTOR_F2"]
           self.biwheels_inner_wheel_limit = self.conf["CONF_BIWHEELS_POWER_MIN_INNER_WHEEL"]
           
@@ -234,25 +235,27 @@ class PiCarFunctions:
 
 
           # If the angle is under the threshold or is in recovery
-          if abs(angle) < self.biwheels_threshold_activation or self.current_speed < 0:
+          if self.current_speed <= 0:
                self.picarcontrols__set_rw_speed(int(abs(self.current_speed)))
                self.picarcontrols__set_lw_speed(int(abs(self.current_speed)))
 
                self.picarcontrols__forward() if self.current_speed >= 0 else self.picarcontrols__backward()
                return
 
-          # If the angle is over the threshold and is going foward
-          
-          factor = self.biwheels_factor * abs(abs(angle)-self.biwheels_threshold_activation) / self.conf["CONF_MAX_STEER"]
-          inner_speed = self.current_speed * min(abs(1 - factor), self.biwheels_inner_wheel_limit)
-          outer_speed = self.current_speed * (1 + factor)
+          # If the angle is over the threshold and is going forward
+          inner_speed = self.current_speed
+          outer_speed = self.current_speed
 
-          #if self.current_speed >= 0:
+          if abs(angle) < self.biwheels_inner_threshold_activation:
+               inner_factor = self.biwheels_factor * abs(abs(angle) - self.biwheels_inner_threshold_activation) / self.conf["CONF_MAX_STEER"]
+               inner_speed = self.current_speed * min(abs(1 - inner_factor), self.biwheels_inner_wheel_limit)
+
+          if abs(angle) < self.biwheels_outer_threshold_activation:
+               outer_factor = self.biwheels_factor * abs(abs(angle) - self.biwheels_outer_threshold_activation) / self.conf["CONF_MAX_STEER"]
+               outer_speed = self.current_speed * (1 + outer_factor)
+
           # Pour tourner vers la gauche ou vers la droite
           rw, lw = (inner_speed, outer_speed) if angle < 0 else (outer_speed, inner_speed)
-
-          # For recovery (backward)
-          # rw, lw = (outer_speed, inner_speed) if angle < 0 else (inner_speed, outer_speed)
 
           # Set wheels speed
           self.picarcontrols__set_rw_speed(abs(rw))
