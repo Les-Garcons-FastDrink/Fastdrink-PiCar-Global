@@ -243,9 +243,9 @@ class PiCarFunctions:
 
           # If the angle is over the threshold and is going foward
           
-          factor = self.biwheels_factor * abs(abs(angle)-self.biwheels_threshold_activation) / self.conf["CONF_MAX_STEER"]
-          inner_speed = self.current_speed * min(abs(1 - factor), self.biwheels_inner_wheel_limit)
-          outer_speed = self.current_speed * (1 + factor)
+          #factor = self.biwheels_factor * abs(abs(angle)-self.biwheels_threshold_activation) / self.conf["CONF_MAX_STEER"]
+          inner_speed = self.current_speed * 0.5 #min(abs(1 - factor), self.biwheels_inner_wheel_limit)
+          outer_speed = self.current_speed
 
           #if self.current_speed >= 0:
           # Pour tourner vers la gauche ou vers la droite
@@ -411,6 +411,3 @@ if __name__ == "__main__":
         method(*args)
     else:
         print(f"Erreur : La méthode '{method_name}' n'existe pas dans PiCarFunctions")
-
-
-
